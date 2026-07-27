@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🥚 Calcolatore Breeding Palworld</title>
+<meta name="description" content="Calcolatore di breeding per Palworld 1.0: combo speciali, formula CombiRank, catene di incroci e pianificatore passive.">
+<style>
+  :root {
+    --green: #2f6f4e;
+    --green-dark: #255a3f;
+    --green-soft: #dcecdf;
+    --bg: #fdfdfb;
+    --card: #f7f8f4;
+    --card-border: #e1e5da;
+    --border: #dde2d3;
+    --input-border: #c9cfc0;
+    --text: #1f2430;
+    --muted: #5b6357;
+    --muted-2: #7a8272;
+    --err-bg: #f6d3ce;
+    --err-text: #7a2b20;
+    --ok-bg: #d7ecd9;
+    --warn-bg: #fbe8c6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 20px;
+    color: var(--text);
+    background: var(--bg);
+  }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  .subtitle { color: var(--muted); font-size: 14px; margin-top: 0; }
+  .pb-btn { cursor: pointer; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 600; font-size: 14px; transition: all .15s; font-family: inherit; }
+  .pb-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .pb-btn-primary { background: var(--green); color: white; }
+  .pb-btn-primary:hover:not(:disabled) { background: var(--green-dark); }
+  .pb-btn-tab { background: #eef1ea; color: #33402f; }
+  .pb-btn-tab.active { background: var(--green); color: white; }
+  .pb-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 18px; }
+  .pb-input { width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--input-border); font-size: 14px; font-family: inherit; }
+  .pb-input:focus { outline: 2px solid var(--green); outline-offset: 1px; }
+  .pb-pal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; max-height: 340px; overflow-y: auto; padding: 4px; }
+  .pb-pal-chip { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 8px; font-size: 13px; cursor: pointer; border: 1px solid var(--border); background: white; }
+  .pb-pal-chip.selected { background: var(--green-soft); border-color: var(--green); font-weight: 600; }
+  .pb-badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .tabs { display: flex; gap: 8px; margin: 16px 0; flex-wrap: wrap; }
+  .cb { position: relative; }
+  .cb-list { position: absolute; z-index: 30; background: white; border: 1px solid var(--input-border); border-radius: 8px; margin-top: 2px; max-height: 230px; overflow-y: auto; width: 100%; box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+  .cb-item { padding: 7px 10px; cursor: pointer; font-size: 13px; }
+  .cb-item:hover { background: #eef1ea; }
+  label.tiny { font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px; }
+  .row2 { display: flex; gap: 12px; margin-bottom: 14px; }
+  .row2 > div { flex: 1; }
+  .result-box { padding: 14px; background: white; border-radius: 10px; border: 1px solid var(--border); }
+  .err-box { font-size: 13px; color: var(--err-text); background: var(--err-bg); padding: 10px; border-radius: 8px; }
+  .footer { font-size: 12px; color: var(--muted-2); margin-top: 24px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .footer button { background: none; border: none; color: var(--muted-2); text-decoration: underline; cursor: pointer; font-size: 12px; padding: 0; }
+  @media (max-width: 600px) {
+    .row2 { flex-direction: column; gap: 8px; }
+    .grid4 { grid-template-columns: repeat(2, 1fr) !important; }
+  }
+</style>
+</head>
+<body>
+
+<h1>🥚 Calcolatore Breeding Palworld</h1>
+<p class="subtitle">
+  Dati versione 1.0 (luglio 2026). Le combo speciali (elencate sotto) sono esatte;
+  le combinazioni generiche usano la formula CombiRank ma solo su un sottoinsieme di Pal
+  di cui conosco il valore — per gli altri il risultato non è calcolabile in questo strumento.
+</p>
+
+<div class="tabs">
+  <button class="pb-btn pb-btn-tab" data-tab="palbox" id="tab-btn-palbox">1. Il mio Palbox (0)</button>
+  <button class="pb-btn pb-btn-tab" data-tab="calc">2. Cosa nasce da questi due?</button>
+  <button class="pb-btn pb-btn-tab" data-tab="chain">3. Come ottengo un Pal?</button>
+  <button class="pb-btn pb-btn-tab" data-tab="plan">4. Piano passive → Pal perfetto</button>
+</div>
+
+<main id="view"></main>
+
+<div class="footer">
+  <span>Palbox, tag e passive vengono salvati automaticamente nel browser.</span>
+  <button id="reset-data">Azzera dati salvati</button>
+</div>
+
+<script>
+/* ============ DATI (Palworld 1.0, luglio 2026) ============ */
+
+const ALL_PALS = "Aegidron,Amione,Anubis,Arsox,Astegon,Azurmane,Azurobe,Azurobe Cryst,Bakemi,Bastigor,Beakon,Beakon Cryst,Beegarde,Bellanoir,Bellanoir Libero,Blazamut,Blazamut Ryu,Blazehowl,Blazehowl Noct,Braloha,Bristla,Broncherry,Broncherry Aqua,Bulldosu,Bushi,Bushi Noct,Caprity,Caprity Noct,Carnibora,Cattiva,Cawgnito,Celaray,Celaray Lux,Celesdir,Celesdir Noct,Chikipi,Chillet,Chillet Ignis,Cinnamoth,Clovee,Cremis,Croajiro,Croajiro Noct,Cryolinx,Cryolinx Terra,Daedream,Dandilord,Dazemu,Dazzi,Dazzi Noct,Depresso,Digtoise,Dinossom,Dinossom Lux,Direhowl,Dogen,Dualith,Dualith Noct,Dumud,Dumud Gild,Dupin,Dynamoff,Eidrolon,Eidrolon Ignis,Eikthyrdeer,Eikthyrdeer Terra,Elgrove,Elgrove Cryst,Elizabee,Elphidran,Elphidran Aqua,Faleris,Faleris Aqua,Felbat,Fenglope,Fenglope Lux,Finsider,Finsider Ignis,Flambelle,Flaracle,Flopie,Foxcicle,Foxparks,Foxparks Cryst,Frostallion,Frostallion Noct,Frostplume,Fuack,Fuack Ignis,Fuddler,Galeclaw,Ghangler,Ghangler Ignis,Gildane,Gildra,Gloopie,Gloopie Primo,Gobfin,Gobfin Ignis,Gorirat,Gorirat Terra,Grintale,Grizzbolt,Gumoss,Gumoss Flower,Hangyu,Hangyu Cryst,Hartalis,Helzephyr,Helzephyr Lux,Herbil,Hoocrates,Hoodle,Icelyn,Incineram,Incineram Noct,Jelliette,Jellroy,Jetragon,Jolthog,Jolthog Cryst,Jormuntide,Jormuntide Ignis,Katress,Katress Ignis,Kelpsea,Kelpsea Ignis,Kikit,Killamari,Killamari Primo,Kingpaca,Kingpaca Cryst,Kitsun,Kitsun Noct,Knocklem,Knocklem Ignis,Lamball,Lapiron,Lapure,Leafan,Leezpunk,Leezpunk Ignis,Lifmunk,Loomen,Loupmoon,Loupmoon Cryst,Lovander,Lullu,Lunaris,Lyleen,Lyleen Noct,Majex,Mammorest,Mammorest Cryst,Maraith,Mau,Mau Cryst,Melpaca,Menasting,Menasting Terra,Mimog,Moldron,Moldron Cryst,Mossanda,Mossanda Lux,Mozzarina,Muffly,Munchill,Mycora,Necromus,Needoll,Needoll Noct,Neptilius,Nitemary,Nitemary Botan,Nitewing,Nox,Nyafia,Omascul,Ophydia,Orserk,Paladius,Palumba,Panthalus,Pengullet,Pengullet Lux,Penking,Penking Lux,Petallia,Petallia Ignis,Pierdon,Pierdon Cryst,Polapup,Polapup Terra,Prixter,Prixter Lux,Prunelia,Puffolt,Pupperai,Pyrin,Pyrin Noct,Quivern,Quivern Botan,Ragnahawk,Rayhound,Rayhound Cryst,Reindrix,Relaxaurus,Relaxaurus Lux,Renjishi,Reptyro,Reptyro Cryst,Ribbuny,Ribbuny Botan,Robinquill,Robinquill Terra,Rooby,Roujay,Rushoar,Sekhmet,Selyne,Shadowbeak,Shaolong,Shroomer,Shroomer Noct,Sibelyx,Sibelyx Primo,Silvance,Silvegis,Skutlass,Skutlass Ignis,Slowatt,Smokie,Smokie Cryst,Snock,Snock Lux,Snugloo,Solenne,Solmora,Solmora Lux,Sootseer,Souffline,Sparkit,Splatterina,Starryon,Starryon Primo,Surfent,Surfent Terra,Suzaku,Suzaku Aqua,Swee,Sweepa,Tanzee,Tanzee Ignis,Tarantriss,Teafant,Tetroise,Tetroise Primo,Tocotoco,Tombat,Tropicaw,Turtacle,Turtacle Terra,Univolt,Univolt Cryst,Vaelet,Valentail,Vanwyrm,Vanwyrm Cryst,Venusa,Verdash,Vixy,Warsect,Warsect Terra,Whalaska,Whalaska Ignis,Wispaw,Wistella,Wixen,Wixen Noct,Woolipop,Woolipop Terra,Wumpo,Wumpo Botan,Xenogard,Xenolord,Xenovader,Yakumo".split(",");
+
+const ALL_PASSIVES = [
+  "Abnormal", "Ace Swimmer", "Aggressive", "Artisan", "Babysitter", "Blood of the Dragon",
+  "Botanical Barrier", "Bottomless Stomach", "Brave", "Brittle", "Burly Body", "Capacitor",
+  "Celestial Emperor", "Cheery", "Clumsy", "Coldblooded", "Conceited", "Coward", "Dainty Eater",
+  "Demon God", "Demon\u2019s Hand", "Destructive", "Diamond Body", "Diet Lover", "Dimensional Leap",
+  "Divine Dragon", "Downtrodden", "Dragonkiller", "Earth Emperor", "Earthquake Resistant",
+  "Easygoing", "Eternal Engine", "Eternal Flame", "Farmhand", "Ferocious", "Fine Furs",
+  "Fit as a Fiddle", "Flame Emperor", "Fragrant Foliage", "Glutton", "God of Destruction",
+  "Hard Skin", "Healing Coach", "Heart of the Immovable King", "Heated Body", "Heavily Armored",
+  "Heavyweight", "Hermit Sage", "Hooligan", "Hydromaniac", "Ice Emperor", "Idiosyncratic",
+  "Immortality", "Impatient", "Infinite Stamina", "Insomnia", "Insulated Body", "Invader",
+  "King of the Waves", "Lavish Hospitality", "Legend", "Lightfooted", "Logging Foreman",
+  "Lord of Lightning", "Lord of the Sea", "Lord of the Underworld", "Lucky", "Lunker",
+  "Masochist", "Mastery of Fasting", "Mercy Hit", "Mine Foreman", "Motivational Leader",
+  "Musclehead", "Night Owl", "Nimble", "Noble", "Otherworldly Cells", "Pacifist", "Philanthropist",
+  "Positive Thinker", "Power of Gaia", "Pyromaniac", "Ranch Master", "Reload Master",
+  "Remarkable Craftsmanship", "Runner", "Sadist", "Sanctified Meat Shield", "Savior", "Serenity",
+  "Serious", "Service-Minded", "Shabby", "Sickly", "Siren of the Void", "Skymarcher",
+  "Sleek Stroke", "Slacker", "Spirit Emperor", "Spirit of Zen", "Stronghold Strategist",
+  "Suntan Lover", "Swift", "Twin-Edged Holy Blade", "Unstable", "Vampiric", "Vanguard",
+  "Veil of Darkness", "Waterproof", "Wellness Watcher", "Whopper", "Work Slave", "Workaholic",
+  "World Tree Seedbed"
+];
+
+// Combo speciali incrociate (fisse, sovrascrivono la formula). Stesse specie X+X=X è sempre valido e gestito a parte.
+const SPECIAL = [
+  ["Azurobe", "Frostplume", "Azurobe Cryst"],
+  ["Beakon", "Frostplume", "Beakon Cryst"],
+  ["Bellanoir", "Bellanoir Libero", "Bellanoir"],
+  ["Blazehowl", "Felbat", "Blazehowl Noct"],
+  ["Broncherry", "Fuack", "Broncherry Aqua"],
+  ["Bushi", "Sootseer", "Bushi Noct"],
+  ["Caprity", "Tarantriss", "Caprity Noct"],
+  ["Celaray", "Univolt", "Celaray Lux"],
+  ["Gildane", "Eikthyrdeer Terra", "Celesdir"],
+  ["Celesdir", "Kitsun Noct", "Celesdir Noct"],
+  ["Chillet", "Arsox", "Chillet Ignis"],
+  ["Croajiro", "Bushi Noct", "Croajiro Noct"],
+  ["Cryolinx", "Dazemu", "Cryolinx Terra"],
+  ["Dazzi", "Omascul", "Dazzi Noct"],
+  ["Dinossom", "Rayhound", "Dinossom Lux"],
+  ["Dumud", "Eikthyrdeer Terra", "Dumud Gild"],
+  ["Eidrolon", "Suzaku", "Eidrolon Ignis"],
+  ["Eikthyrdeer", "Hangyu", "Eikthyrdeer Terra"],
+  ["Elgrove", "Pierdon Cryst", "Elgrove Cryst"],
+  ["Elphidran", "Surfent", "Elphidran Aqua"],
+  ["Faleris", "Jormuntide", "Faleris Aqua"],
+  ["Fenglope", "Azurmane", "Fenglope Lux"],
+  ["Finsider", "Gobfin Ignis", "Finsider Ignis"],
+  ["Foxparks", "Foxcicle", "Foxparks Cryst"],
+  ["Frostallion", "Helzephyr", "Frostallion Noct"],
+  ["Fuack", "Flambelle", "Fuack Ignis"],
+  ["Ghangler", "Sootseer", "Ghangler Ignis"],
+  ["Gloopie", "Valentail", "Gloopie Primo"],
+  ["Gobfin", "Rooby", "Gobfin Ignis"],
+  ["Gorirat", "Kikit", "Gorirat Terra"],
+  ["Hangyu", "Swee", "Hangyu Cryst"],
+  ["Helzephyr", "Beakon", "Helzephyr Lux"],
+  ["Incineram", "Maraith", "Incineram Noct"],
+  ["Jolthog", "Pengullet", "Jolthog Cryst"],
+  ["Jormuntide", "Blazehowl", "Jormuntide Ignis"],
+  ["Killamari", "Ribbuny", "Killamari Primo"],
+  ["Kingpaca", "Reindrix", "Kingpaca Cryst"],
+  ["Kitsun", "Nyafia", "Kitsun Noct"],
+  ["Knocklem", "Ragnahawk", "Knocklem Ignis"],
+  ["Leezpunk", "Flambelle", "Leezpunk Ignis"],
+  ["Loupmoon", "Sweepa", "Loupmoon Cryst"],
+  ["Lyleen", "Menasting", "Lyleen Noct"],
+  ["Mammorest", "Wumpo", "Mammorest Cryst"],
+  ["Mau", "Pengullet", "Mau Cryst"],
+  ["Menasting", "Knocklem", "Menasting Terra"],
+  ["Mossanda", "Grizzbolt", "Mossanda Lux"],
+  ["Needoll", "Prunelia", "Needoll Noct"],
+  ["Nitemary", "Petallia", "Nitemary Botan"],
+  ["Pengullet", "Sparkit", "Pengullet Lux"],
+  ["Penking", "Rayhound", "Penking Lux"],
+  ["Petallia", "Bushi", "Petallia Ignis"],
+  ["Pierdon", "Wumpo", "Pierdon Cryst"],
+  ["Polapup", "Surfent Terra", "Polapup Terra"],
+  ["Prixter", "Helzephyr Lux", "Prixter Lux"],
+  ["Pyrin", "Katress", "Pyrin Noct"],
+  ["Quivern", "Lullu", "Quivern Botan"],
+  ["Rayhound", "Foxcicle", "Rayhound Cryst"],
+  ["Relaxaurus", "Sparkit", "Relaxaurus Lux"],
+  ["Reptyro", "Foxcicle", "Reptyro Cryst"],
+  ["Ribbuny", "Bristla", "Ribbuny Botan"],
+  ["Robinquill", "Fuddler", "Robinquill Terra"],
+  ["Sibelyx", "Lapure", "Sibelyx Primo"],
+  ["Skutlass", "Gobfin Ignis", "Skutlass Ignis"],
+  ["Smokie", "Munchill", "Smokie Cryst"],
+  ["Snock", "Turtacle Terra", "Snock Lux"],
+  ["Solmora", "Slowatt", "Solmora Lux"],
+  ["Starryon", "Celesdir", "Starryon Primo"],
+  ["Surfent", "Dumud", "Surfent Terra"],
+  ["Suzaku", "Jormuntide", "Suzaku Aqua"],
+  ["Tanzee", "Flambelle", "Tanzee Ignis"],
+  ["Tetroise", "Celesdir", "Tetroise Primo"],
+  ["Turtacle", "Digtoise", "Turtacle Terra"],
+  ["Univolt", "Frostplume", "Univolt Cryst"],
+  ["Vanwyrm", "Foxcicle", "Vanwyrm Cryst"],
+  ["Warsect", "Digtoise", "Warsect Terra"],
+  ["Whalaska", "Chillet Ignis", "Whalaska Ignis"],
+  ["Woolipop", "Kikit", "Woolipop Terra"],
+  ["Dualith", "Sootseer", "Dualith Noct"],
+  ["Moldron", "Reptyro Cryst", "Moldron Cryst"]
+];
+
+// Potere di allevamento (CombiRank) ESATTO per tutti i 287 Pal, estratto direttamente dai dati di gioco
+// (fonte: PalCalc, MIT license, dati da PalCalc-NoBundle v1.0)
+const RANK = {
+  "Aegidron": 30, "Amione": 2520, "Anubis": 480, "Arsox": 2320, "Astegon": 490,
+  "Azurmane": 420, "Azurobe": 1830, "Azurobe Cryst": 1220, "Bakemi": 1540, "Bastigor": 50,
+  "Beakon": 1690, "Beakon Cryst": 580, "Beegarde": 2350, "Bellanoir": 620, "Bellanoir Libero": 130,
+  "Blazamut": 410, "Blazamut Ryu": 100, "Blazehowl": 1360, "Blazehowl Noct": 1270, "Braloha": 1030,
+  "Bristla": 2690, "Broncherry": 1380, "Broncherry Aqua": 1080, "Bulldosu": 1190, "Bushi": 1560,
+  "Bushi Noct": 840, "Caprity": 2610, "Caprity Noct": 1940, "Carnibora": 1700, "Cattiva": 2760,
+  "Cawgnito": 2370, "Celaray": 2740, "Celaray Lux": 2380, "Celesdir": 570, "Celesdir Noct": 270,
+  "Chikipi": 3080, "Chillet": 2330, "Chillet Ignis": 1950, "Cinnamoth": 2620, "Clovee": 2970,
+  "Cremis": 2890, "Croajiro": 2600, "Croajiro Noct": 1860, "Cryolinx": 1040, "Cryolinx Terra": 470,
+  "Daedream": 2910, "Dandilord": 60, "Dazemu": 2210, "Dazzi": 2400, "Dazzi Noct": 1910,
+  "Depresso": 3000, "Digtoise": 1550, "Dinossom": 2100, "Dinossom Lux": 1890, "Direhowl": 2680,
+  "Dogen": 1460, "Dualith": 510, "Dualith Noct": 250, "Dumud": 2290, "Dumud Gild": 1620,
+  "Dupin": 520, "Dynamoff": 1400, "Eidrolon": 300, "Eidrolon Ignis": 140, "Eikthyrdeer": 2710,
+  "Eikthyrdeer Terra": 2580, "Elgrove": 2020, "Elgrove Cryst": 440, "Elizabee": 1790, "Elphidran": 2280,
+  "Elphidran Aqua": 1640, "Faleris": 500, "Faleris Aqua": 450, "Felbat": 1570, "Fenglope": 1960,
+  "Fenglope Lux": 900, "Finsider": 2450, "Finsider Ignis": 2240, "Flambelle": 2700, "Flaracle": 390,
+  "Flopie": 2660, "Foxcicle": 1970, "Foxparks": 2990, "Foxparks Cryst": 2500, "Frostallion": 150,
+  "Frostallion Noct": 110, "Frostplume": 860, "Fuack": 2980, "Fuack Ignis": 2300, "Fuddler": 2790,
+  "Galeclaw": 2570, "Ghangler": 880, "Ghangler Ignis": 720, "Gildane": 730, "Gildra": 1170,
+  "Gloopie": 2530, "Gloopie Primo": 1630, "Gobfin": 2550, "Gobfin Ignis": 2430, "Gorirat": 2140,
+  "Gorirat Terra": 1880, "Grintale": 2120, "Grizzbolt": 1020, "Gumoss": 2950, "Gumoss Flower": 2950,
+  "Hangyu": 2780, "Hangyu Cryst": 2510, "Hartalis": 90, "Helzephyr": 1130, "Helzephyr Lux": 960,
+  "Herbil": 2630, "Hoocrates": 2940, "Hoodle": 1770, "Icelyn": 1260, "Incineram": 1470,
+  "Incineram Noct": 1310, "Jelliette": 2650, "Jellroy": 2590, "Jetragon": 70, "Jolthog": 3030,
+  "Jolthog Cryst": 2850, "Jormuntide": 590, "Jormuntide Ignis": 170, "Katress": 2040, "Katress Ignis": 1800,
+  "Kelpsea": 2810, "Kelpsea Ignis": 2470, "Kikit": 2310, "Killamari": 2770, "Killamari Primo": 2540,
+  "Kingpaca": 2220, "Kingpaca Cryst": 1530, "Kitsun": 1670, "Kitsun Noct": 800, "Knocklem": 260,
+  "Knocklem Ignis": 210, "Lamball": 3050, "Lapiron": 1680, "Lapure": 810, "Leafan": 1410,
+  "Leezpunk": 2670, "Leezpunk Ignis": 2640, "Lifmunk": 3020, "Loomen": 890, "Loupmoon": 2110,
+  "Loupmoon Cryst": 1290, "Lovander": 2090, "Lullu": 1990, "Lunaris": 2010, "Lyleen": 240,
+  "Lyleen Noct": 220, "Majex": 1010, "Mammorest": 1340, "Mammorest Cryst": 1070, "Maraith": 1710,
+  "Mau": 3040, "Mau Cryst": 2750, "Melpaca": 2720, "Menasting": 1120, "Menasting Terra": 640,
+  "Mimog": 1740, "Moldron": 750, "Moldron Cryst": 380, "Mossanda": 2060, "Mossanda Lux": 1440,
+  "Mozzarina": 2800, "Muffly": 2480, "Munchill": 2130, "Mycora": 760, "Necromus": 190,
+  "Needoll": 2420, "Needoll Noct": 1580, "Neptilius": 160, "Nitemary": 1230, "Nitemary Botan": 1320,
+  "Nitewing": 2560, "Nox": 2920, "Nyafia": 1250, "Omascul": 1140, "Ophydia": 230,
+  "Orserk": 120, "Paladius": 180, "Palumba": 1240, "Panthalus": 20, "Pengullet": 2960,
+  "Pengullet Lux": 2490, "Penking": 2070, "Penking Lux": 1850, "Petallia": 1720, "Petallia Ignis": 820,
+  "Pierdon": 1110, "Pierdon Cryst": 460, "Polapup": 1660, "Polapup Terra": 1100, "Prixter": 1510,
+  "Prixter Lux": 850, "Prunelia": 1390, "Puffolt": 2360, "Pupperai": 2930, "Pyrin": 1980,
+  "Pyrin Noct": 1870, "Quivern": 1210, "Quivern Botan": 1300, "Ragnahawk": 1050, "Rayhound": 1920,
+  "Rayhound Cryst": 1600, "Reindrix": 1930, "Relaxaurus": 1090, "Relaxaurus Lux": 770, "Renjishi": 290,
+  "Reptyro": 1060, "Reptyro Cryst": 600, "Ribbuny": 2860, "Ribbuny Botan": 2460, "Robinquill": 2260,
+  "Robinquill Terra": 2050, "Rooby": 2870, "Roujay": 530, "Rushoar": 2880, "Sekhmet": 870,
+  "Selyne": 360, "Shadowbeak": 550, "Shaolong": 40, "Shroomer": 1520, "Shroomer Noct": 1450,
+  "Sibelyx": 1810, "Sibelyx Primo": 650, "Silvance": 80, "Silvegis": 560, "Skutlass": 1420,
+  "Skutlass Ignis": 1590, "Slowatt": 1750, "Smokie": 1760, "Smokie Cryst": 1610, "Snock": 1780,
+  "Snock Lux": 1500, "Snugloo": 2390, "Solenne": 280, "Solmora": 1370, "Solmora Lux": 1000,
+  "Sootseer": 980, "Souffline": 2000, "Sparkit": 3010, "Splatterina": 780, "Starryon": 1150,
+  "Starryon Primo": 430, "Surfent": 2440, "Surfent Terra": 1840, "Suzaku": 1200, "Suzaku Aqua": 740,
+  "Swee": 2840, "Sweepa": 2150, "Tanzee": 2900, "Tanzee Ignis": 2830, "Tarantriss": 1730,
+  "Teafant": 3070, "Tetroise": 790, "Tetroise Primo": 200, "Tocotoco": 2730, "Tombat": 2340,
+  "Tropicaw": 1350, "Turtacle": 2410, "Turtacle Terra": 1330, "Univolt": 2270, "Univolt Cryst": 540,
+  "Vaelet": 1480, "Valentail": 1900, "Vanwyrm": 1650, "Vanwyrm Cryst": 1430, "Venusa": 970,
+  "Verdash": 1160, "Vixy": 3060, "Warsect": 1280, "Warsect Terra": 630, "Whalaska": 710,
+  "Whalaska Ignis": 370, "Wispaw": 2250, "Wistella": 1180, "Wixen": 2080, "Wixen Noct": 1490,
+  "Woolipop": 2820, "Woolipop Terra": 2030, "Wumpo": 830, "Wumpo Botan": 610, "Xenogard": 990,
+  "Xenolord": 400, "Xenovader": 1820, "Yakumo": 2230
+};
+
+const SAME_SPECIES_ONLY = new Set([
+  "Chikipi","Blazamut Ryu","Paladius","Necromus","Frostallion","Jetragon","Bellanoir Libero",
+  "Mimog","Xenovader","Xenogard","Xenolord","Faleris","Shadowbeak","Grizzbolt","Orserk","Lyleen",
+  "Selyne","Bastigor","Dandilord","Hartalis","Neptilius","Shaolong","Silvance"
+]);
+
+/* ============ LOGICA ============ */
+
+// Pal che la formula generica NON può MAI produrre — lista completa verificata (dati PalCalc)
+const NOT_ELIGIBLE = new Set([
+  "Azurobe Cryst", "Bastigor", "Beakon Cryst", "Bellanoir", "Bellanoir Libero", "Blazamut Ryu",
+  "Blazehowl Noct", "Broncherry Aqua", "Bushi Noct", "Caprity Noct", "Celaray Lux", "Celesdir",
+  "Celesdir Noct", "Chillet Ignis", "Croajiro Noct", "Cryolinx Terra", "Dandilord", "Dazzi Noct",
+  "Dinossom Lux", "Dualith Noct", "Dumud Gild", "Eidrolon Ignis", "Eikthyrdeer Terra",
+  "Elgrove Cryst", "Elphidran Aqua", "Faleris", "Faleris Aqua", "Fenglope Lux", "Finsider Ignis",
+  "Foxparks Cryst", "Frostallion", "Frostallion Noct", "Fuack Ignis", "Ghangler Ignis",
+  "Gloopie Primo", "Gobfin Ignis", "Gorirat Terra", "Grizzbolt", "Hangyu Cryst", "Hartalis",
+  "Helzephyr Lux", "Incineram Noct", "Jetragon", "Jolthog Cryst", "Jormuntide Ignis",
+  "Katress Ignis", "Killamari Primo", "Kingpaca Cryst", "Kitsun Noct", "Knocklem Ignis",
+  "Leezpunk Ignis", "Loupmoon Cryst", "Lyleen", "Lyleen Noct", "Mammorest Cryst", "Mau Cryst",
+  "Menasting Terra", "Mimog", "Moldron Cryst", "Mossanda Lux", "Necromus", "Needoll Noct",
+  "Neptilius", "Nitemary Botan", "Orserk", "Paladius", "Pengullet Lux", "Penking Lux",
+  "Petallia Ignis", "Pierdon Cryst", "Polapup Terra", "Prixter Lux", "Pyrin Noct", "Quivern Botan",
+  "Rayhound Cryst", "Relaxaurus Lux", "Reptyro Cryst", "Ribbuny Botan", "Robinquill Terra",
+  "Selyne", "Shadowbeak", "Shaolong", "Sibelyx Primo", "Silvance", "Skutlass Ignis",
+  "Smokie Cryst", "Snock Lux", "Solmora Lux", "Starryon Primo", "Surfent Terra", "Suzaku Aqua",
+  "Tanzee Ignis", "Tetroise Primo", "Turtacle Terra", "Univolt Cryst", "Vanwyrm Cryst",
+  "Warsect Terra", "Whalaska Ignis", "Wixen Noct", "Woolipop Terra", "Xenogard", "Xenolord",
+  "Xenovader"
+]);
+
+function normKey(a, b) { return [a, b].sort().join("||"); }
+
+const SPECIAL_MAP = new Map();
+SPECIAL.forEach(([a, b, child]) => SPECIAL_MAP.set(normKey(a, b), child));
+
+function breed(a, b) {
+  if (!a || !b) return null;
+  if (a === b) return { child: a, method: "same" };
+  // caso genere-dipendente Katress/Wixen
+  const pair = [a, b].sort();
+  if (pair[0] === "Katress" && pair[1] === "Wixen") {
+    return {
+      child: null,
+      method: "gender",
+      note: "Dipende dal genere: femmina Wixen + Katress → Wixen Noct. Femmina Katress + Wixen → Katress Ignis."
+    };
+  }
+  const special = SPECIAL_MAP.get(normKey(a, b));
+  if (special) return { child: special, method: "special" };
+
+  if (RANK[a] != null && RANK[b] != null) {
+    const targetRank = Math.floor((RANK[a] + RANK[b] + 1) / 2);
+    let best = null;
+    let bestDiff = Infinity;
+    for (const [name, rank] of Object.entries(RANK)) {
+      if (NOT_ELIGIBLE.has(name)) continue; // questi non escono mai dalla formula generica
+      const diff = Math.abs(rank - targetRank);
+      if (diff < bestDiff) { bestDiff = diff; best = name; }
+    }
+    return { child: best, method: "formula", targetRank };
+  }
+  return { child: null, method: "unknown" };
+}
+
+function popcount(mask) {
+  let c = 0;
+  while (mask) { c += mask & 1; mask >>= 1; }
+  return c;
+}
+
+// Universo di specie utilizzabili come partner in qualunque passaggio.
+const BREED_UNIVERSE = [...new Set([...Object.keys(RANK), ...SPECIAL.flatMap(([a, b]) => [a, b])])];
+
+const reachCache = new Map();
+function getReach(fromSpecies) {
+  if (reachCache.has(fromSpecies)) return reachCache.get(fromSpecies);
+  const map = new Map();
+  for (const q of BREED_UNIVERSE) {
+    if (q === fromSpecies) continue;
+    const r = breed(fromSpecies, q);
+    if (r && r.child && r.child !== fromSpecies && !map.has(r.child)) {
+      map.set(r.child, { partner: q, method: r.method });
+    }
+  }
+  reachCache.set(fromSpecies, map);
+  return map;
+}
+
+// BFS: catena di incroci più corta da fromSpecies a toSpecies (qualsiasi partner, fino a maxGen generazioni).
+function findSpeciesPath(fromSpecies, toSpecies, maxGen = 5) {
+  if (fromSpecies === toSpecies) return { path: [], gen: 0 };
+  let frontier = [fromSpecies];
+  const visited = new Map([[fromSpecies, null]]);
+  for (let gen = 1; gen <= maxGen; gen++) {
+    const next = [];
+    for (const sp of frontier) {
+      const reach = getReach(sp);
+      for (const [child, info] of reach) {
+        if (visited.has(child)) continue;
+        visited.set(child, { prev: sp, partner: info.partner, method: info.method });
+        if (child === toSpecies) {
+          const path = [];
+          let cur = child;
+          while (cur !== fromSpecies) {
+            const v = visited.get(cur);
+            path.unshift({ from: v.prev, to: cur, partner: v.partner, method: v.method });
+            cur = v.prev;
+          }
+          return { path, gen };
+        }
+        next.push(child);
+      }
+    }
+    frontier = next;
+    if (frontier.length === 0) break;
+  }
+  return null;
+}
+
+// Miglior "portatore" per la specie S partendo dai Pal taggati.
+function bestCarrierForSpecies(S, carriers) {
+  let mask = 0;
+  const seeds = [];
+
+  const direct = carriers.find((c) => c.species === S);
+  if (direct) {
+    mask |= direct.mask;
+    seeds.push({ type: "owned", species: S, mask: direct.mask, label: direct.label });
+  }
+
+  carriers.forEach((c) => {
+    if (c.species === S) return;
+    const bitsToGain = c.mask & ~mask;
+    if (bitsToGain === 0) return;
+    const found = findSpeciesPath(c.species, S);
+    if (found) {
+      mask |= c.mask;
+      seeds.push({
+        type: "route", from: c.species, fromLabel: c.label,
+        mask: c.mask, species: S, path: found.path, gen: found.gen
+      });
+    } else {
+      seeds.push({ type: "unreachable", from: c.species, fromLabel: c.label, mask: c.mask, species: S });
+    }
+  });
+
+  return { mask, seeds };
+}
+
+// Coppie di specie (sA, sB) che possono generare la specie target.
+function finalPairOptionsFor(target) {
+  const options = [];
+  SPECIAL.forEach(([a, b, c]) => { if (c === target) options.push({ sA: a, sB: b, type: "special" }); });
+  options.push({ sA: target, sB: target, type: "same" });
+  return options;
+}
+
+function planPassives(ownedList, tags, passiveNames, targetSpecies) {
+  const names = passiveNames.filter(Boolean);
+  if (names.length === 0) return { error: "Inserisci almeno una passive." };
+  const fullMask = (1 << names.length) - 1;
+
+  const carriers = [];
+  ownedList.forEach((p) => {
+    const tagSet = tags[p] || {};
+    let mask = 0;
+    names.forEach((n, idx) => { if (tagSet[n]) mask |= (1 << idx); });
+    if (mask > 0) carriers.push({ species: p, mask, label: p });
+  });
+
+  if (carriers.length === 0) {
+    return { error: "Nessun Pal del Palbox è taggato con le passive scelte. Usa il modulo qui sopra per aggiungerli." };
+  }
+
+  const pairOptions = finalPairOptionsFor(targetSpecies);
+
+  let best = null;
+  for (const opt of pairOptions) {
+    const resA = bestCarrierForSpecies(opt.sA, carriers);
+    const resB = opt.sB === opt.sA ? resA : bestCarrierForSpecies(opt.sB, carriers);
+    const combined = resA.mask | resB.mask;
+    const coverage = popcount(combined);
+    const score = coverage * 10 + (opt.type === "special" ? 1 : 0); // leggera preferenza alle combo speciali a parità
+    if (!best || score > best.score) {
+      best = { opt, resA, resB, combined, coverage, score };
+    }
+  }
+
+  return {
+    names, fullMask, targetSpecies,
+    pairType: best.opt.type,
+    sA: best.opt.sA, sB: best.opt.sB,
+    resA: best.resA, resB: best.resB,
+    coverage: best.coverage,
+    complete: best.combined === fullMask,
+    missing: names.filter((_, idx) => !((best.combined >> idx) & 1))
+  };
+}
+
+/* ============ STATO + PERSISTENZA ============ */
+
+const state = {
+  tab: "calc",
+  owned: new Set(),
+  search: "",
+  parentA: "", parentB: "",
+  target: "", chainResult: null, chainRunning: false,
+  passiveNames: ["", "", "", ""],
+  tags: {},
+  planTarget: "", planResult: null,
+  quickPal: "", quickTags: {}
+};
+
+const STORAGE_KEY = "palworld-breeding-v1";
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      owned: Array.from(state.owned),
+      tags: state.tags,
+      passiveNames: state.passiveNames
+    }));
+  } catch (e) { /* storage non disponibile: si continua senza persistenza */ }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (Array.isArray(data.owned)) state.owned = new Set(data.owned.filter((p) => ALL_PALS.includes(p)));
+    if (data.tags && typeof data.tags === "object") state.tags = data.tags;
+    if (Array.isArray(data.passiveNames) && data.passiveNames.length === 4) state.passiveNames = data.passiveNames;
+  } catch (e) { /* dati corrotti o storage non disponibile: si parte da zero */ }
+}
+
+/* ============ HELPER UI ============ */
+
+const methodLabel = {
+  same: "Stessa specie",
+  special: "Combo speciale (esatta)",
+  formula: "Formula CombiRank (stima)",
+  gender: "Dipende dal genere",
+  unknown: "Dati non disponibili"
+};
+
+function esc(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function el(tag, attrs = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") node.className = v;
+    else if (k === "style") node.style.cssText = v;
+    else if (k === "html") node.innerHTML = v;
+    else if (k.startsWith("on")) node.addEventListener(k.slice(2), v);
+    else node.setAttribute(k, v);
+  }
+  for (const c of [].concat(children)) {
+    if (c == null) continue;
+    node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+  }
+  return node;
+}
+
+// Combobox con ricerca (equivalente del GenericCombobox React)
+function combobox({ options, value, placeholder, onSelect }) {
+  const wrap = el("div", { class: "cb" });
+  const input = el("input", { class: "pb-input", placeholder: placeholder || "" });
+  input.value = value || "";
+  const list = el("div", { class: "cb-list", style: "display:none" });
+  let open = false;
+
+  function renderList() {
+    const q = input.value.trim().toLowerCase();
+    const matches = (q ? options.filter((p) => p.toLowerCase().includes(q)) : options).slice(0, 15);
+    list.innerHTML = "";
+    if (!open || matches.length === 0) { list.style.display = "none"; return; }
+    matches.forEach((p) => {
+      const item = el("div", { class: "cb-item" }, p);
+      item.addEventListener("mousedown", () => {
+        input.value = p;
+        open = false;
+        list.style.display = "none";
+        onSelect(p);
+      });
+      list.appendChild(item);
+    });
+    list.style.display = "block";
+  }
+
+  input.addEventListener("input", () => {
+    open = true;
+    if (!options.includes(input.value)) onSelect("");
+    renderList();
+  });
+  input.addEventListener("focus", () => { open = true; renderList(); });
+  input.addEventListener("blur", () => { setTimeout(() => { open = false; list.style.display = "none"; }, 150); });
+
+  wrap.appendChild(input);
+  wrap.appendChild(list);
+  return wrap;
+}
+
+const palCombobox = (opts) => combobox({ ...opts, options: ALL_PALS });
+const passiveCombobox = (opts) => combobox({ ...opts, options: ALL_PASSIVES });
+
+function updatePalboxCounter() {
+  document.getElementById("tab-btn-palbox").textContent = `1. Il mio Palbox (${state.owned.size})`;
+}
+
+/* ============ TAB: PALBOX ============ */
+
+function renderPalbox(view) {
+  const card = el("div", { class: "pb-card" });
+  const input = el("input", { class: "pb-input", placeholder: "Cerca un Pal...", style: "margin-bottom:10px" });
+  input.value = state.search;
+  const grid = el("div", { class: "pb-pal-grid" });
+
+  function updateGrid() {
+    const q = state.search.toLowerCase();
+    grid.innerHTML = "";
+    ALL_PALS.filter((p) => p.toLowerCase().includes(q)).forEach((p) => {
+      const chip = el("div", { class: "pb-pal-chip" + (state.owned.has(p) ? " selected" : "") });
+      const cb = el("input", { type: "checkbox" });
+      cb.checked = state.owned.has(p);
+      cb.tabIndex = -1;
+      chip.appendChild(cb);
+      chip.appendChild(document.createTextNode(p));
+      chip.addEventListener("click", () => {
+        state.owned.has(p) ? state.owned.delete(p) : state.owned.add(p);
+        saveState();
+        updatePalboxCounter();
+        updateGrid();
+      });
+      grid.appendChild(chip);
+    });
+  }
+
+  input.addEventListener("input", () => { state.search = input.value; updateGrid(); });
+  updateGrid();
+  card.appendChild(input);
+  card.appendChild(grid);
+  view.appendChild(card);
+}
+
+/* ============ TAB: CALCOLATORE ============ */
+
+function renderCalc(view) {
+  const card = el("div", { class: "pb-card" });
+  const resultBox = el("div");
+
+  function updateResult() {
+    resultBox.innerHTML = "";
+    const res = breed(state.parentA, state.parentB);
+    if (!(state.parentA && state.parentB && res)) return;
+
+    const box = el("div", { class: "result-box" });
+    if (res.child) {
+      box.appendChild(el("div", { style: "font-size:20px;font-weight:700" }, `→ ${res.child}`));
+      const badgeBg = res.method === "special" ? "var(--ok-bg)" : res.method === "same" ? "#e4e9dc" : "var(--warn-bg)";
+      box.appendChild(el("span", { class: "pb-badge", style: `background:${badgeBg};color:#333` }, methodLabel[res.method]));
+      if (res.method === "formula") {
+        box.appendChild(el("p", { style: "font-size:12px;color:var(--muted-2);margin-top:8px;margin-bottom:0" },
+          `Rank obiettivo calcolato: ${res.targetRank}. Risultato scelto tra i Pal di rank noto in questo strumento — potrebbe non coincidere col Pal esatto scelto dal gioco se esiste un Pal con rank più vicino non incluso qui.`));
+      }
+    } else {
+      box.appendChild(el("span", { class: "pb-badge", style: "background:var(--err-bg);color:var(--err-text)" }, methodLabel[res.method]));
+      if (res.note) box.appendChild(el("p", { style: "font-size:13px;margin-top:8px;margin-bottom:0" }, res.note));
+      if (res.method === "unknown") {
+        box.appendChild(el("p", { style: "font-size:13px;margin-top:8px;margin-bottom:0;color:var(--muted-2)" },
+          "Non ho il valore di breeding power per uno o entrambi questi Pal — non è una combo speciale nota. Prova su un calcolatore online aggiornato per la 1.0 (es. la pagina Breeding di palworld.wiki.gg) per il risultato esatto."));
+      }
+    }
+    resultBox.appendChild(box);
+  }
+
+  const row = el("div", { class: "row2" });
+  const colA = el("div", {}, [el("label", { class: "tiny" }, "Genitore A")]);
+  colA.appendChild(palCombobox({
+    value: state.parentA, placeholder: "Scrivi per cercare...",
+    onSelect: (v) => { state.parentA = v; updateResult(); }
+  }));
+  const colB = el("div", {}, [el("label", { class: "tiny" }, "Genitore B")]);
+  colB.appendChild(palCombobox({
+    value: state.parentB, placeholder: "Scrivi per cercare...",
+    onSelect: (v) => { state.parentB = v; updateResult(); }
+  }));
+  row.appendChild(colA);
+  row.appendChild(colB);
+
+  card.appendChild(row);
+  card.appendChild(resultBox);
+  updateResult();
+  view.appendChild(card);
+}
+
+/* ============ TAB: CATENA ============ */
+
+function runChainSearch(onDone) {
+  if (!state.target) return;
+  state.chainRunning = true;
+  setTimeout(() => {
+    const target = state.target;
+    const reachable = new Map(); // pal -> {gen, via}
+    state.owned.forEach((p) => reachable.set(p, { gen: 0, via: null }));
+
+    if (reachable.has(target)) {
+      state.chainResult = { found: true, gen: 0, via: null, pal: target };
+      state.chainRunning = false;
+      onDone();
+      return;
+    }
+
+    let found = null;
+    for (let gen = 1; gen <= 4 && !found; gen++) {
+      const currentPals = Array.from(reachable.keys());
+      const newFinds = [];
+      outer: for (let i = 0; i < currentPals.length; i++) {
+        for (let j = i; j < currentPals.length; j++) {
+          const a = currentPals[i];
+          const b = currentPals[j];
+          const res = breed(a, b);
+          if (!res || !res.child) continue;
+          if (!reachable.has(res.child)) {
+            newFinds.push([res.child, a, b, res.method]);
+            if (res.child === target) {
+              found = { pal: target, gen, via: [a, b], method: res.method };
+              break outer;
+            }
+          }
+        }
+      }
+      newFinds.forEach(([child, a, b]) => {
+        if (!reachable.has(child)) reachable.set(child, { gen, via: [a, b] });
+      });
+      // limite di sicurezza
+      if (reachable.size > 400) break;
+    }
+
+    state.chainResult = found ? { found: true, ...found } : { found: false };
+    state.chainRunning = false;
+    onDone();
+  }, 10);
+}
+
+function renderChain(view) {
+  const card = el("div", { class: "pb-card" });
+  const staticArea = el("div");
+  const resultArea = el("div");
+  let btn;
+
+  function updateStatic() {
+    staticArea.innerHTML = "";
+    const target = state.target;
+    if (target && SAME_SPECIES_ONLY.has(target) && !state.owned.has(target)) {
+      staticArea.appendChild(el("p", { class: "err-box" },
+        `${target} si riproduce solo con se stesso (o si cattura in giro) — non è ottenibile incrociando altri Pal.`));
+    }
+    if (target) {
+      const specials = SPECIAL.filter(([a, b, c]) => c === target);
+      if (specials.length > 0) {
+        const wrap = el("div", { style: "margin-bottom:14px" });
+        wrap.appendChild(el("div", { style: "font-weight:600;font-size:14px;margin-bottom:6px" }, `Combo speciali note per ${target}:`));
+        specials.forEach(([a, b]) => {
+          const line = el("div", { style: "font-size:14px;padding:6px 10px;background:white;border-radius:8px;margin-bottom:4px;border:1px solid var(--border)" });
+          line.appendChild(document.createTextNode(`${a} + ${b} `));
+          if (state.owned.has(a) && state.owned.has(b)) {
+            line.appendChild(el("span", { class: "pb-badge", style: "background:var(--ok-bg)" }, "li hai entrambi ✓"));
+          }
+          wrap.appendChild(line);
+        });
+        staticArea.appendChild(wrap);
+      }
+    }
+  }
+
+  function updateResult() {
+    btn.disabled = !state.target || state.chainRunning;
+    btn.textContent = state.chainRunning ? "Cerco..." : "Cerca catena dal mio Palbox";
+    resultArea.innerHTML = "";
+    const r = state.chainResult;
+    if (!r) return;
+    const box = el("div", { class: "result-box", style: "margin-top:14px" });
+    if (r.found) {
+      if (r.gen === 0) {
+        box.appendChild(el("p", { style: "margin:0" }, `Hai già ${state.target} nel Palbox!`));
+      } else {
+        box.appendChild(el("div", { style: "font-weight:700;margin-bottom:6px" },
+          `Trovato in ${r.gen} generazion${r.gen > 1 ? "i" : "e"}:`));
+        box.appendChild(el("div", {}, `${r.via[0]} + ${r.via[1]} → ${state.target}`));
+        box.appendChild(el("span", {
+          class: "pb-badge",
+          style: `background:${r.method === "special" ? "var(--ok-bg)" : "var(--warn-bg)"};margin-top:6px`
+        }, methodLabel[r.method]));
+        if (r.gen > 1) {
+          box.appendChild(el("p", { style: "font-size:12px;color:var(--muted-2);margin-top:8px;margin-bottom:0" },
+            "Nota: se la generazione è > 1, uno o entrambi i genitori indicati potrebbero essere a loro volta un Pal da allevare prima (non uno che possiedi direttamente) — la ricerca esplora fino a 4 passaggi di incroci."));
+        }
+      }
+    } else {
+      box.appendChild(el("p", { style: "margin:0" },
+        "Nessuna catena trovata entro 4 generazioni con i Pal che hai selezionato nel Palbox (o mancano dati di rank per collegare i tuoi Pal a questo target)."));
+    }
+    resultArea.appendChild(box);
+  }
+
+  card.appendChild(el("label", { class: "tiny" }, "Pal che voglio ottenere"));
+  const cbWrap = el("div", { style: "margin-bottom:12px" });
+  cbWrap.appendChild(palCombobox({
+    value: state.target, placeholder: "Scrivi per cercare...",
+    onSelect: (v) => { state.target = v; state.chainResult = null; updateStatic(); updateResult(); }
+  }));
+  card.appendChild(cbWrap);
+  card.appendChild(staticArea);
+
+  btn = el("button", { class: "pb-btn pb-btn-primary" }, "Cerca catena dal mio Palbox");
+  btn.addEventListener("click", () => {
+    updateResult(); // mostra "Cerco..."
+    runChainSearch(updateResult);
+    btn.disabled = true;
+    btn.textContent = "Cerco...";
+  });
+  card.appendChild(btn);
+  card.appendChild(resultArea);
+  updateStatic();
+  updateResult();
+  view.appendChild(card);
+}
+
+/* ============ TAB: PIANO PASSIVE ============ */
+
+function renderPlan(view) {
+  const card = el("div", { class: "pb-card" });
+  const dynamicArea = el("div");   // quick-add + lista taggati (dipende dalle passive scelte)
+  const resultArea = el("div");
+  let planBtn;
+
+  card.appendChild(el("p", { style: "font-size:13px;color:var(--muted);margin-top:0" },
+    "1) Scrivi fino a 4 passive che vuoi ottenere. 2) Per ogni Pal del tuo Palbox, spunta quali di queste passive ha già. 3) Scegli il Pal finale. Lo strumento capisce da quali specie ESATTE deve nascere il Pal finale (combo speciale o stessa specie) e cerca di portare le tue passive proprio su quelle specie — non su una specie a caso."));
+
+  // 4 combobox passive
+  const passiveGrid = el("div", { class: "grid4", style: "display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px" });
+  state.passiveNames.forEach((v, i) => {
+    passiveGrid.appendChild(passiveCombobox({
+      value: v, placeholder: `Passive ${i + 1}`,
+      onSelect: (val) => {
+        state.passiveNames[i] = val;
+        state.planResult = null;
+        saveState();
+        updateDynamic();
+        updateResult();
+      }
+    }));
+  });
+  card.appendChild(passiveGrid);
+  card.appendChild(dynamicArea);
+
+  function updateDynamic() {
+    dynamicArea.innerHTML = "";
+    const active = state.passiveNames.filter(Boolean);
+    if (active.length === 0) return;
+
+    dynamicArea.appendChild(el("div", { style: "font-weight:600;font-size:14px;margin-bottom:6px" }, "Aggiungi un Pal con le sue passive"));
+
+    const quickRow = el("div", { style: "display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap" });
+    const quickCbWrap = el("div", { style: "width:220px" });
+    let addBtn;
+    quickCbWrap.appendChild(palCombobox({
+      value: state.quickPal, placeholder: "Scrivi per cercare...",
+      onSelect: (v) => { state.quickPal = v; addBtn.disabled = !v; }
+    }));
+    quickRow.appendChild(quickCbWrap);
+
+    active.forEach((n) => {
+      const lbl = el("label", { style: "display:flex;align-items:center;gap:4px;font-size:13px" });
+      const cb = el("input", { type: "checkbox" });
+      cb.checked = !!state.quickTags[n];
+      cb.addEventListener("change", () => { state.quickTags[n] = cb.checked; });
+      lbl.appendChild(cb);
+      lbl.appendChild(document.createTextNode(n));
+      quickRow.appendChild(lbl);
+    });
+
+    addBtn = el("button", { class: "pb-btn pb-btn-primary" }, "+ Aggiungi");
+    addBtn.disabled = !state.quickPal;
+    addBtn.addEventListener("click", () => {
+      state.owned.add(state.quickPal);
+      state.tags[state.quickPal] = { ...state.tags[state.quickPal], ...state.quickTags };
+      state.quickPal = "";
+      state.quickTags = {};
+      saveState();
+      updatePalboxCounter();
+      updateDynamic();
+    });
+    quickRow.appendChild(addBtn);
+    dynamicArea.appendChild(quickRow);
+
+    if (state.owned.size > 0) {
+      const wrap = el("div", { style: "margin-bottom:14px" });
+      wrap.appendChild(el("div", { style: "font-weight:600;font-size:13px;margin-bottom:6px;color:var(--muted)" }, "Pal già taggati (puoi modificarli qui):"));
+      const scroll = el("div", { style: "max-height:220px;overflow-y:auto" });
+      Array.from(state.owned).forEach((p) => {
+        const line = el("div", { style: "display:flex;align-items:center;gap:10px;padding:5px 8px;border-bottom:1px solid #e6e9de;font-size:13px;flex-wrap:wrap" });
+        line.appendChild(el("div", { style: "width:140px;font-weight:600" }, p));
+        active.forEach((n) => {
+          const lbl = el("label", { style: "display:flex;align-items:center;gap:4px" });
+          const cb = el("input", { type: "checkbox" });
+          cb.checked = !!(state.tags[p] && state.tags[p][n]);
+          cb.addEventListener("change", () => {
+            state.tags[p] = { ...state.tags[p], [n]: cb.checked };
+            saveState();
+          });
+          lbl.appendChild(cb);
+          lbl.appendChild(document.createTextNode(n));
+          line.appendChild(lbl);
+        });
+        scroll.appendChild(line);
+      });
+      wrap.appendChild(scroll);
+      dynamicArea.appendChild(wrap);
+    }
+  }
+
+  // Target + bottone
+  card.appendChild(el("label", { class: "tiny" }, "Pal finale che voglio ottenere"));
+  const targetWrap = el("div", { style: "margin-bottom:12px" });
+  targetWrap.appendChild(palCombobox({
+    value: state.planTarget, placeholder: "Scrivi per cercare...",
+    onSelect: (v) => {
+      state.planTarget = v;
+      state.planResult = null;
+      planBtn.disabled = !state.planTarget || !state.passiveNames.some(Boolean);
+      updateResult();
+    }
+  }));
+  card.appendChild(targetWrap);
+
+  planBtn = el("button", { class: "pb-btn pb-btn-primary" }, "Genera piano");
+  planBtn.disabled = !state.planTarget || !state.passiveNames.some(Boolean);
+  planBtn.addEventListener("click", () => {
+    state.planResult = planPassives(Array.from(state.owned), state.tags, state.passiveNames, state.planTarget);
+    updateResult();
+  });
+  card.appendChild(planBtn);
+  card.appendChild(resultArea);
+
+  function maskNames(names, mask) {
+    return names.filter((_, idx) => mask & (1 << idx)).map(esc).join(", ");
+  }
+
+  function updateResult() {
+    planBtn.disabled = !state.planTarget || !state.passiveNames.some(Boolean);
+    resultArea.innerHTML = "";
+    const r = state.planResult;
+    if (!r) return;
+
+    const wrap = el("div", { style: "margin-top:16px" });
+
+    if (r.error) {
+      wrap.appendChild(el("p", { class: "err-box" }, r.error));
+      resultArea.appendChild(wrap);
+      return;
+    }
+
+    // Riepilogo coppia finale
+    const pairHtml = r.sA === r.sB
+      ? `Per ottenere <b>${esc(r.targetSpecies)}</b> servono esattamente: due <b>${esc(r.sA)}</b> (stessa specie)`
+      : `Per ottenere <b>${esc(r.targetSpecies)}</b> servono esattamente: <b>${esc(r.sA)}</b> + <b>${esc(r.sB)}</b> <span style="color:var(--muted-2)">(${r.pairType === "special" ? "combo speciale fissa" : "incrocio"})</span>`;
+    wrap.appendChild(el("div", { style: "padding:10px;background:#eef1ea;border-radius:8px;margin-bottom:12px;font-size:13px", html: pairHtml }));
+
+    // Lati A/B
+    const sides = [{ role: r.sA, res: r.resA, label: "Lato A" }];
+    if (r.sB !== r.sA) sides.push({ role: r.sB, res: r.resB, label: "Lato B" });
+
+    sides.forEach((side) => {
+      const box = el("div", { style: "margin-bottom:12px;padding:12px;background:white;border:1px solid var(--border);border-radius:8px" });
+      box.appendChild(el("div", { style: "font-weight:700;margin-bottom:6px", html: `${esc(side.label)}: portare le passive su <b>${esc(side.role)}</b>` }));
+
+      if (side.res.seeds.length === 0) {
+        box.appendChild(el("p", { style: "font-size:13px;color:var(--muted-2);margin:0" },
+          `Nessuno dei tuoi Pal taggati contribuisce qui — dovrai catturare/allevare un ${side.role} con le passive desiderate a parte.`));
+      }
+
+      side.res.seeds.forEach((s) => {
+        const seedBg = s.type === "unreachable" ? "#fdeeea" : "#f7f8f4";
+        const seed = el("div", { style: `font-size:13px;padding:6px 8px;margin-bottom:4px;border-radius:6px;background:${seedBg}` });
+
+        if (s.type === "owned") {
+          seed.innerHTML = `✓ Possiedi già un ${esc(side.role)} con: ${maskNames(r.names, s.mask)}`;
+        } else if (s.type === "route") {
+          const header = `Da <b>${esc(s.fromLabel)}</b> (ha: ${maskNames(r.names, s.mask)}) a <b>${esc(side.role)}</b> in ${s.gen} generazion${s.gen > 1 ? "i" : "e"}:`;
+          let chain = `<span class="pb-badge" style="background:#eef1ea">${esc(s.from)}</span>`;
+          s.path.forEach((step) => {
+            chain += ` <span style="color:var(--muted-2)">+ ${esc(step.partner)} →</span> <span class="pb-badge" style="background:${step.method === "special" ? "var(--ok-bg)" : "var(--warn-bg)"}">${esc(step.to)}</span>`;
+          });
+          seed.innerHTML = `<div>${header}</div><div style="margin-top:4px;display:flex;flex-wrap:wrap;align-items:center;gap:4px">${chain}</div>`;
+        } else if (s.type === "unreachable") {
+          seed.innerHTML = `⚠ Non trovo nessuna catena di incroci (entro 5 generazioni, partendo da qualunque partner) che porti le passive di <b>${esc(s.fromLabel)}</b> (${maskNames(r.names, s.mask)}) su un ${esc(side.role)}. Potrebbe comunque esistere con più generazioni, oppure procurati un ${esc(side.role)} con quella passive in altro modo (es. cattura in giro).`;
+        }
+        box.appendChild(seed);
+      });
+
+      wrap.appendChild(box);
+    });
+
+    // Riepilogo finale
+    const finalBg = r.complete ? "#e5f3e8" : "#fdf3e3";
+    const finalHtml = r.complete
+      ? `✅ Copri tutte e ${r.names.length === 4 ? "4" : r.names.length} le passive tra i due lati. Incrocio finale: <b>${esc(r.sA)}</b> + <b>${esc(r.sB)}</b> → <b>${esc(r.targetSpecies)}</b>, usando la Torta Speciale per forzare l'eredità di 4 passive.`
+      : `⚠ Con la situazione attuale copri ${r.coverage} passive su ${r.names.length}. Mancano: <b>${r.missing.map(esc).join(", ")}</b>. Procurati un Pal (posseduto o catturato) con quelle passive sul lato giusto, oppure ritagga.`;
+    wrap.appendChild(el("div", { style: `padding:12px;background:${finalBg};border:1px solid var(--border);border-radius:8px`, html: finalHtml }));
+
+    wrap.appendChild(el("p", { style: "font-size:12px;color:var(--muted-2);margin-top:12px", html:
+      "Consiglio pratico: nella Breeding Farm, la <b>Torta Speciale (Special Cake)</b> forza l'eredità di 4 passive dai genitori nell'incrocio finale — usala lì. I passaggi con incroci \"diretti\" indicati sopra vanno comunque ripetuti più volte finché non ottieni un cucciolo che eredita davvero la passive voluta (l'eredità resta casuale)." }));
+
+    resultArea.appendChild(wrap);
+  }
+
+  updateDynamic();
+  updateResult();
+  view.appendChild(card);
+}
+
+/* ============ ROUTER TAB ============ */
+
+function renderTab() {
+  const view = document.getElementById("view");
+  view.innerHTML = "";
+  document.querySelectorAll(".pb-btn-tab").forEach((b) => {
+    b.classList.toggle("active", b.dataset.tab === state.tab);
+  });
+  if (state.tab === "palbox") renderPalbox(view);
+  else if (state.tab === "calc") renderCalc(view);
+  else if (state.tab === "chain") renderChain(view);
+  else if (state.tab === "plan") renderPlan(view);
+}
+
+document.querySelectorAll(".pb-btn-tab").forEach((b) => {
+  b.addEventListener("click", () => { state.tab = b.dataset.tab; renderTab(); });
+});
+
+document.getElementById("reset-data").addEventListener("click", () => {
+  if (!confirm("Cancellare Palbox, tag e passive salvati nel browser?")) return;
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+  state.owned = new Set();
+  state.tags = {};
+  state.passiveNames = ["", "", "", ""];
+  state.planResult = null;
+  state.chainResult = null;
+  updatePalboxCounter();
+  renderTab();
+});
+
+loadState();
+updatePalboxCounter();
+renderTab();
+</script>
+</body>
+</html>
