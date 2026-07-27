@@ -117,6 +117,12 @@
   .pb-pal-chip { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 8px; font-size: 13px; cursor: pointer; border: 1px solid var(--border); background: var(--surface); }
   .pb-pal-chip.selected { background: var(--green-soft); border-color: var(--green); font-weight: 600; }
   .pb-badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .remove-btn {
+    margin-left: auto; cursor: pointer; flex-shrink: 0;
+    border: 1px solid var(--border); background: var(--surface); color: var(--muted-2);
+    border-radius: 6px; width: 26px; height: 26px; font-size: 16px; line-height: 1; font-family: inherit; transition: all .15s;
+  }
+  .remove-btn:hover { background: var(--err-bg); border-color: var(--err-text); color: var(--err-text); }
   .tabs { display: flex; gap: 8px; margin: 16px 0; flex-wrap: wrap; }
   .cb { position: relative; }
   .cb-list { position: absolute; z-index: 30; background: var(--surface); border: 1px solid var(--input-border); border-radius: 8px; margin-top: 2px; max-height: 230px; overflow-y: auto; width: 100%; box-shadow: 0 4px 12px var(--shadow); }
@@ -592,7 +598,8 @@ const I18N = {
     passiveN: (i) => `Passive ${i}`,
     addPalTitle: "Aggiungi un Pal con le sue passive",
     addBtn: "+ Aggiungi",
-    taggedTitle: "Pal già taggati (puoi modificarli qui):",
+    taggedTitle: "Pal già taggati (puoi modificarli o rimuoverli qui):",
+    removePal: (p) => `Rimuovi ${p} dal Palbox`,
     planTargetLabel: "Pal finale che voglio ottenere",
     generatePlan: "Genera piano",
     errNoPassive: "Inserisci almeno una passive.",
@@ -656,7 +663,8 @@ const I18N = {
     passiveN: (i) => `Passive ${i}`,
     addPalTitle: "Add a Pal with its passives",
     addBtn: "+ Add",
-    taggedTitle: "Tagged Pals (you can edit them here):",
+    taggedTitle: "Tagged Pals (you can edit or remove them here):",
+    removePal: (p) => `Remove ${p} from the Palbox`,
     planTargetLabel: "Final Pal I want to get",
     generatePlan: "Generate plan",
     errNoPassive: "Enter at least one passive.",
@@ -1094,6 +1102,19 @@ function renderPlan(view) {
           lbl.appendChild(document.createTextNode(n));
           line.appendChild(lbl);
         });
+
+        const rm = el("button", { class: "remove-btn", title: t("removePal", p), "aria-label": t("removePal", p) }, "×");
+        rm.addEventListener("click", () => {
+          state.owned.delete(p);
+          delete state.tags[p];
+          state.planResult = null; // il piano faceva riferimento a questo Pal: va rigenerato
+          saveState();
+          updateTabLabels();
+          updateDynamic();
+          updateResult();
+        });
+        line.appendChild(rm);
+
         scroll.appendChild(line);
       });
       wrap.appendChild(scroll);
