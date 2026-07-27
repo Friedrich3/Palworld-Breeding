@@ -1,27 +1,83 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🥚 Calcolatore Breeding Palworld</title>
 <meta name="description" content="Calcolatore di breeding per Palworld 1.0: combo speciali, formula CombiRank, catene di incroci e pianificatore passive.">
+<script>
+  // Applica tema e lingua prima del primo paint, per evitare il lampo bianco
+  (function () {
+    try {
+      var p = JSON.parse(localStorage.getItem("palworld-breeding-prefs-v1") || "{}");
+      var theme = p.theme || (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+      if (p.lang) document.documentElement.setAttribute("lang", p.lang);
+    } catch (e) {}
+  })();
+</script>
 <style>
-  :root {
+  :root, [data-theme="light"] {
+    color-scheme: light;
     --green: #2f6f4e;
-    --green-dark: #255a3f;
+    --green-hover: #255a3f;
     --green-soft: #dcecdf;
     --bg: #fdfdfb;
     --card: #f7f8f4;
+    --surface: #ffffff;
+    --soft: #eef1ea;
     --card-border: #e1e5da;
     --border: #dde2d3;
+    --border-soft: #e6e9de;
     --input-border: #c9cfc0;
     --text: #1f2430;
     --muted: #5b6357;
     --muted-2: #7a8272;
+    --tab-bg: #eef1ea;
+    --tab-text: #33402f;
+    --ok-bg: #d7ecd9;
+    --ok-text: #1f4a2c;
+    --ok-soft: #e5f3e8;
+    --warn-bg: #fbe8c6;
+    --warn-text: #6b4a12;
+    --warn-soft: #fdf3e3;
     --err-bg: #f6d3ce;
     --err-text: #7a2b20;
-    --ok-bg: #d7ecd9;
-    --warn-bg: #fbe8c6;
+    --err-soft: #fdeeea;
+    --neutral-bg: #e4e9dc;
+    --neutral-text: #33402f;
+    --shadow: rgba(0,0,0,.08);
+  }
+  [data-theme="dark"] {
+    color-scheme: dark;
+    --green: #3d8a62;
+    --green-hover: #4aa476;
+    --green-soft: #24402f;
+    --bg: #13171a;
+    --card: #1a1f1d;
+    --surface: #212724;
+    --soft: #232a26;
+    --card-border: #2b332e;
+    --border: #333c36;
+    --border-soft: #2b332e;
+    --input-border: #3d4741;
+    --text: #e4eae2;
+    --muted: #a4ad9f;
+    --muted-2: #8b948a;
+    --tab-bg: #262d29;
+    --tab-text: #cdd6ca;
+    --ok-bg: #1f3d2c;
+    --ok-text: #a8dcb8;
+    --ok-soft: #1a2f22;
+    --warn-bg: #40331c;
+    --warn-text: #f0cf95;
+    --warn-soft: #33291a;
+    --err-bg: #46231f;
+    --err-text: #f0b3a8;
+    --err-soft: #3a201d;
+    --neutral-bg: #2a3230;
+    --neutral-text: #dbe2d8;
+    --shadow: rgba(0,0,0,.4);
   }
   * { box-sizing: border-box; }
   body {
@@ -31,61 +87,87 @@
     padding: 20px;
     color: var(--text);
     background: var(--bg);
+    transition: background .2s, color .2s;
   }
   h1 { font-size: 24px; margin: 0 0 4px; }
-  .subtitle { color: var(--muted); font-size: 14px; margin-top: 0; }
+  .subtitle { color: var(--muted); font-size: 14px; margin: 0; }
+  .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .controls { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+  .icon-btn {
+    cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    border-radius: 10px; width: 38px; height: 34px; font-size: 15px; line-height: 1; transition: all .15s;
+  }
+  .icon-btn:hover { border-color: var(--green); }
+  .lang-switch { display: flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .lang-switch button {
+    cursor: pointer; border: none; background: var(--surface); color: var(--muted);
+    padding: 0 10px; height: 34px; font-size: 12px; font-weight: 700; font-family: inherit; transition: all .15s;
+  }
+  .lang-switch button.active { background: var(--green); color: #fff; }
   .pb-btn { cursor: pointer; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 600; font-size: 14px; transition: all .15s; font-family: inherit; }
   .pb-btn:disabled { opacity: .5; cursor: not-allowed; }
-  .pb-btn-primary { background: var(--green); color: white; }
-  .pb-btn-primary:hover:not(:disabled) { background: var(--green-dark); }
-  .pb-btn-tab { background: #eef1ea; color: #33402f; }
-  .pb-btn-tab.active { background: var(--green); color: white; }
+  .pb-btn-primary { background: var(--green); color: #fff; }
+  .pb-btn-primary:hover:not(:disabled) { background: var(--green-hover); }
+  .pb-btn-tab { background: var(--tab-bg); color: var(--tab-text); }
+  .pb-btn-tab.active { background: var(--green); color: #fff; }
   .pb-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 18px; }
-  .pb-input { width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--input-border); font-size: 14px; font-family: inherit; }
-  .pb-input:focus { outline: 2px solid var(--green); outline-offset: 1px; }
+  .pb-input { width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--input-border); font-size: 14px; font-family: inherit; background: var(--surface); color: var(--text); }
+  .pb-input:focus-visible { outline: 2px solid var(--green); outline-offset: 1px; }
   .pb-pal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; max-height: 340px; overflow-y: auto; padding: 4px; }
-  .pb-pal-chip { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 8px; font-size: 13px; cursor: pointer; border: 1px solid var(--border); background: white; }
+  .pb-pal-chip { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 8px; font-size: 13px; cursor: pointer; border: 1px solid var(--border); background: var(--surface); }
   .pb-pal-chip.selected { background: var(--green-soft); border-color: var(--green); font-weight: 600; }
   .pb-badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
   .tabs { display: flex; gap: 8px; margin: 16px 0; flex-wrap: wrap; }
   .cb { position: relative; }
-  .cb-list { position: absolute; z-index: 30; background: white; border: 1px solid var(--input-border); border-radius: 8px; margin-top: 2px; max-height: 230px; overflow-y: auto; width: 100%; box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+  .cb-list { position: absolute; z-index: 30; background: var(--surface); border: 1px solid var(--input-border); border-radius: 8px; margin-top: 2px; max-height: 230px; overflow-y: auto; width: 100%; box-shadow: 0 4px 12px var(--shadow); }
   .cb-item { padding: 7px 10px; cursor: pointer; font-size: 13px; }
-  .cb-item:hover { background: #eef1ea; }
+  .cb-item:hover { background: var(--soft); }
   label.tiny { font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px; }
   .row2 { display: flex; gap: 12px; margin-bottom: 14px; }
   .row2 > div { flex: 1; }
-  .result-box { padding: 14px; background: white; border-radius: 10px; border: 1px solid var(--border); }
+  .result-box { padding: 14px; background: var(--surface); border-radius: 10px; border: 1px solid var(--border); }
   .err-box { font-size: 13px; color: var(--err-text); background: var(--err-bg); padding: 10px; border-radius: 8px; }
   .footer { font-size: 12px; color: var(--muted-2); margin-top: 24px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .footer button { background: none; border: none; color: var(--muted-2); text-decoration: underline; cursor: pointer; font-size: 12px; padding: 0; }
+  .footer button { background: none; border: none; color: var(--muted-2); text-decoration: underline; cursor: pointer; font-size: 12px; padding: 0; font-family: inherit; }
+  :focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
   @media (max-width: 600px) {
+    .topbar { flex-direction: column; }
     .row2 { flex-direction: column; gap: 8px; }
     .grid4 { grid-template-columns: repeat(2, 1fr) !important; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
   }
 </style>
 </head>
 <body>
 
-<h1>🥚 Calcolatore Breeding Palworld</h1>
-<p class="subtitle">
-  Dati versione 1.0 (luglio 2026). Le combo speciali (elencate sotto) sono esatte;
-  le combinazioni generiche usano la formula CombiRank ma solo su un sottoinsieme di Pal
-  di cui conosco il valore — per gli altri il risultato non è calcolabile in questo strumento.
-</p>
+<div class="topbar">
+  <div>
+    <h1 id="app-title">🥚 Calcolatore Breeding Palworld</h1>
+    <p class="subtitle" id="app-subtitle"></p>
+  </div>
+  <div class="controls">
+    <button class="icon-btn" id="theme-toggle" title="" aria-label=""></button>
+    <div class="lang-switch">
+      <button data-lang="it">IT</button>
+      <button data-lang="en">EN</button>
+    </div>
+  </div>
+</div>
 
 <div class="tabs">
-  <button class="pb-btn pb-btn-tab" data-tab="palbox" id="tab-btn-palbox">1. Il mio Palbox (0)</button>
-  <button class="pb-btn pb-btn-tab" data-tab="calc">2. Cosa nasce da questi due?</button>
-  <button class="pb-btn pb-btn-tab" data-tab="chain">3. Come ottengo un Pal?</button>
-  <button class="pb-btn pb-btn-tab" data-tab="plan">4. Piano passive → Pal perfetto</button>
+  <button class="pb-btn pb-btn-tab" data-tab="palbox" id="tab-btn-palbox"></button>
+  <button class="pb-btn pb-btn-tab" data-tab="calc" id="tab-btn-calc"></button>
+  <button class="pb-btn pb-btn-tab" data-tab="chain" id="tab-btn-chain"></button>
+  <button class="pb-btn pb-btn-tab" data-tab="plan" id="tab-btn-plan"></button>
 </div>
 
 <main id="view"></main>
 
 <div class="footer">
-  <span>Palbox, tag e passive vengono salvati automaticamente nel browser.</span>
-  <button id="reset-data">Azzera dati salvati</button>
+  <span id="footer-note"></span>
+  <button id="reset-data"></button>
 </div>
 
 <script>
@@ -308,7 +390,7 @@ function breed(a, b) {
     return {
       child: null,
       method: "gender",
-      note: "Dipende dal genere: femmina Wixen + Katress → Wixen Noct. Femmina Katress + Wixen → Katress Ignis."
+      note: "genderNote"
     };
   }
   const special = SPECIAL_MAP.get(normKey(a, b));
@@ -423,7 +505,7 @@ function finalPairOptionsFor(target) {
 
 function planPassives(ownedList, tags, passiveNames, targetSpecies) {
   const names = passiveNames.filter(Boolean);
-  if (names.length === 0) return { error: "Inserisci almeno una passive." };
+  if (names.length === 0) return { error: "errNoPassive" };
   const fullMask = (1 << names.length) - 1;
 
   const carriers = [];
@@ -435,7 +517,7 @@ function planPassives(ownedList, tags, passiveNames, targetSpecies) {
   });
 
   if (carriers.length === 0) {
-    return { error: "Nessun Pal del Palbox è taggato con le passive scelte. Usa il modulo qui sopra per aggiungerli." };
+    return { error: "errNoCarriers" };
   }
 
   const pairOptions = finalPairOptionsFor(targetSpecies);
@@ -463,6 +545,146 @@ function planPassives(ownedList, tags, passiveNames, targetSpecies) {
   };
 }
 
+
+/* ============ TRADUZIONI ============ */
+
+const I18N = {
+  it: {
+    docTitle: "🥚 Calcolatore Breeding Palworld",
+    title: "🥚 Calcolatore Breeding Palworld",
+    subtitle: "Dati versione 1.0 (luglio 2026). Le combo speciali sono esatte; le altre coppie usano la formula CombiRank, che approssima molto bene il risultato del gioco ma non lo garantisce.",
+    themeToDark: "Passa al tema scuro",
+    themeToLight: "Passa al tema chiaro",
+    tabPalbox: (n) => `1. Il mio Palbox (${n})`,
+    tabCalc: "2. Cosa nasce da questi due?",
+    tabChain: "3. Come ottengo un Pal?",
+    tabPlan: "4. Piano passive → Pal perfetto",
+    footerNote: "Palbox, tag, passive, tema e lingua vengono salvati nel browser.",
+    resetBtn: "Azzera dati salvati",
+    resetConfirm: "Cancellare Palbox, tag e passive salvati nel browser?",
+
+    searchPal: "Cerca un Pal...",
+    searchPlaceholder: "Scrivi per cercare...",
+
+    parentA: "Genitore A",
+    parentB: "Genitore B",
+    method_same: "Stessa specie",
+    method_special: "Combo speciale (esatta)",
+    method_formula: "Formula CombiRank (stima)",
+    method_gender: "Dipende dal genere",
+    method_unknown: "Dati non disponibili",
+    genderNote: "Dipende dal genere: femmina Wixen + Katress → Wixen Noct. Femmina Katress + Wixen → Katress Ignis.",
+    formulaNote: (rank) => `Rank obiettivo calcolato: ${rank}. Il risultato è il Pal con il rank più vicino tra quelli che il gioco può produrre da un incrocio generico.`,
+    unknownNote: "Non ho il valore di breeding power per uno o entrambi questi Pal e non è una combo speciale nota. Prova su un calcolatore online aggiornato alla 1.0 (es. la pagina Breeding di palworld.wiki.gg).",
+
+    targetLabel: "Pal che voglio ottenere",
+    sameSpeciesOnly: (t) => `${t} si riproduce solo con se stesso (o si cattura in giro): non è ottenibile incrociando altri Pal.`,
+    knownCombos: (t) => `Combo speciali note per ${t}:`,
+    haveBoth: "li hai entrambi ✓",
+    searchChain: "Cerca catena dal mio Palbox",
+    searching: "Cerco...",
+    alreadyOwned: (t) => `Hai già ${t} nel Palbox!`,
+    foundIn: (g) => `Trovato in ${g} generazion${g > 1 ? "i" : "e"}:`,
+    chainNote: "Nota: se la generazione è maggiore di 1, uno o entrambi i genitori indicati potrebbero essere a loro volta un Pal da allevare prima. La ricerca esplora fino a 4 passaggi di incroci.",
+    chainNotFound: "Nessuna catena trovata entro 4 generazioni con i Pal selezionati nel Palbox.",
+
+    planIntro: "1) Scrivi fino a 4 passive che vuoi ottenere. 2) Per ogni Pal del tuo Palbox, spunta quali di queste passive ha già. 3) Scegli il Pal finale. Lo strumento capisce da quali specie ESATTE deve nascere il Pal finale (combo speciale o stessa specie) e cerca di portare le tue passive proprio su quelle specie, non su una specie a caso.",
+    passiveN: (i) => `Passive ${i}`,
+    addPalTitle: "Aggiungi un Pal con le sue passive",
+    addBtn: "+ Aggiungi",
+    taggedTitle: "Pal già taggati (puoi modificarli qui):",
+    planTargetLabel: "Pal finale che voglio ottenere",
+    generatePlan: "Genera piano",
+    errNoPassive: "Inserisci almeno una passive.",
+    errNoCarriers: "Nessun Pal del Palbox è taggato con le passive scelte. Usa il modulo qui sopra per aggiungerli.",
+    pairSame: (t, a) => `Per ottenere <b>${t}</b> servono esattamente: due <b>${a}</b> (stessa specie)`,
+    pairCross: (t, a, b, kind) => `Per ottenere <b>${t}</b> servono esattamente: <b>${a}</b> + <b>${b}</b> <span style="color:var(--muted-2)">(${kind})</span>`,
+    pairKindSpecial: "combo speciale fissa",
+    pairKindCross: "incrocio",
+    sideA: "Lato A",
+    sideB: "Lato B",
+    sideTitle: (label, role) => `${label}: portare le passive su <b>${role}</b>`,
+    sideEmpty: (role) => `Nessuno dei tuoi Pal taggati contribuisce qui: dovrai catturare o allevare a parte un ${role} con le passive desiderate.`,
+    seedOwned: (role, list) => `✓ Possiedi già un ${role} con: ${list}`,
+    seedRoute: (from, list, role, g) => `Da <b>${from}</b> (ha: ${list}) a <b>${role}</b> in ${g} generazion${g > 1 ? "i" : "e"}:`,
+    seedUnreachable: (from, list, role) => `⚠ Non trovo nessuna catena di incroci (entro 5 generazioni, partendo da qualunque partner) che porti le passive di <b>${from}</b> (${list}) su un ${role}. Potrebbe esistere con più generazioni, oppure procurati un ${role} con quella passive in altro modo.`,
+    planComplete: (n, a, b, t) => `✅ Copri tutte e ${n} le passive tra i due lati. Incrocio finale: <b>${a}</b> + <b>${b}</b> → <b>${t}</b>, usando la Torta Speciale per forzare l'eredità di 4 passive.`,
+    planPartial: (cov, tot, missing) => `⚠ Con la situazione attuale copri ${cov} passive su ${tot}. Mancano: <b>${missing}</b>. Procurati un Pal con quelle passive sul lato giusto, oppure ritagga.`,
+    planTip: "Consiglio pratico: nella Breeding Farm, la <b>Torta Speciale (Special Cake)</b> forza l'eredità di 4 passive dai genitori nell'incrocio finale, quindi usala lì. I passaggi intermedi vanno comunque ripetuti più volte finché non esce un cucciolo che eredita davvero la passive voluta: l'eredità resta casuale."
+  },
+
+  en: {
+    docTitle: "🥚 Palworld Breeding Calculator",
+    title: "🥚 Palworld Breeding Calculator",
+    subtitle: "Version 1.0 data (July 2026). Special combos are exact; every other pair uses the CombiRank formula, which closely approximates the game's result but doesn't guarantee it.",
+    themeToDark: "Switch to dark theme",
+    themeToLight: "Switch to light theme",
+    tabPalbox: (n) => `1. My Palbox (${n})`,
+    tabCalc: "2. What do these two make?",
+    tabChain: "3. How do I get a Pal?",
+    tabPlan: "4. Passive plan → perfect Pal",
+    footerNote: "Palbox, tags, passives, theme and language are saved in your browser.",
+    resetBtn: "Clear saved data",
+    resetConfirm: "Clear the Palbox, tags and passives saved in your browser?",
+
+    searchPal: "Search a Pal...",
+    searchPlaceholder: "Type to search...",
+
+    parentA: "Parent A",
+    parentB: "Parent B",
+    method_same: "Same species",
+    method_special: "Special combo (exact)",
+    method_formula: "CombiRank formula (estimate)",
+    method_gender: "Depends on gender",
+    method_unknown: "No data available",
+    genderNote: "Depends on gender: female Wixen + Katress → Wixen Noct. Female Katress + Wixen → Katress Ignis.",
+    formulaNote: (rank) => `Target rank: ${rank}. The result is the Pal with the closest rank among those the game can produce from a generic pairing.`,
+    unknownNote: "I don't have a breeding power value for one or both of these Pals, and this isn't a known special combo. Try a calculator updated for 1.0 (e.g. the Breeding page on palworld.wiki.gg).",
+
+    targetLabel: "Pal I want to get",
+    sameSpeciesOnly: (t) => `${t} only breeds with itself (or is caught in the wild): you can't get it by crossing other Pals.`,
+    knownCombos: (t) => `Known special combos for ${t}:`,
+    haveBoth: "you have both ✓",
+    searchChain: "Search a chain from my Palbox",
+    searching: "Searching...",
+    alreadyOwned: (t) => `You already have ${t} in your Palbox!`,
+    foundIn: (g) => `Found in ${g} generation${g > 1 ? "s" : ""}:`,
+    chainNote: "Note: if the generation count is above 1, one or both listed parents may themselves need to be bred first. The search explores up to 4 breeding steps.",
+    chainNotFound: "No chain found within 4 generations using the Pals selected in your Palbox.",
+
+    planIntro: "1) Enter up to 4 passives you want. 2) For each Pal in your Palbox, tick which of those passives it already has. 3) Pick the final Pal. The tool works out which EXACT species the final Pal must be born from (special combo or same species) and tries to bring your passives onto those species, not onto a random one.",
+    passiveN: (i) => `Passive ${i}`,
+    addPalTitle: "Add a Pal with its passives",
+    addBtn: "+ Add",
+    taggedTitle: "Tagged Pals (you can edit them here):",
+    planTargetLabel: "Final Pal I want to get",
+    generatePlan: "Generate plan",
+    errNoPassive: "Enter at least one passive.",
+    errNoCarriers: "No Pal in your Palbox is tagged with the chosen passives. Use the form above to add them.",
+    pairSame: (t, a) => `To get <b>${t}</b> you need exactly: two <b>${a}</b> (same species)`,
+    pairCross: (t, a, b, kind) => `To get <b>${t}</b> you need exactly: <b>${a}</b> + <b>${b}</b> <span style="color:var(--muted-2)">(${kind})</span>`,
+    pairKindSpecial: "fixed special combo",
+    pairKindCross: "cross",
+    sideA: "Side A",
+    sideB: "Side B",
+    sideTitle: (label, role) => `${label}: bring the passives onto <b>${role}</b>`,
+    sideEmpty: (role) => `None of your tagged Pals helps here: you'll need to catch or breed ${role} with the passives you want separately.`,
+    seedOwned: (role, list) => `✓ You already have ${role} with: ${list}`,
+    seedRoute: (from, list, role, g) => `From <b>${from}</b> (has: ${list}) to <b>${role}</b> in ${g} generation${g > 1 ? "s" : ""}:`,
+    seedUnreachable: (from, list, role) => `⚠ I can't find any breeding chain (within 5 generations, using any partner) that brings the passives of <b>${from}</b> (${list}) onto ${role}. One may exist with more generations, or get ${role} with that passive another way.`,
+    planComplete: (n, a, b, t) => `✅ All ${n} passives are covered across both sides. Final breeding: <b>${a}</b> + <b>${b}</b> → <b>${t}</b>, using the Special Cake to force inheritance of 4 passives.`,
+    planPartial: (cov, tot, missing) => `⚠ As things stand you cover ${cov} of ${tot} passives. Missing: <b>${missing}</b>. Get a Pal with those passives on the right side, or re-tag.`,
+    planTip: "Practical tip: in the Breeding Farm, the <b>Special Cake</b> forces inheritance of 4 passives from the parents, so use it for the final pairing. The intermediate steps still need repeating until a cub actually inherits the passive you want: inheritance stays random."
+  }
+};
+
+let lang = document.documentElement.getAttribute("lang") === "en" ? "en" : "it";
+
+function t(key, ...args) {
+  const v = I18N[lang][key];
+  return typeof v === "function" ? v(...args) : v;
+}
+
 /* ============ STATO + PERSISTENZA ============ */
 
 const state = {
@@ -478,6 +700,7 @@ const state = {
 };
 
 const STORAGE_KEY = "palworld-breeding-v1";
+const PREFS_KEY = "palworld-breeding-prefs-v1";
 
 function saveState() {
   try {
@@ -500,15 +723,16 @@ function loadState() {
   } catch (e) { /* dati corrotti o storage non disponibile: si parte da zero */ }
 }
 
-/* ============ HELPER UI ============ */
+function savePrefs() {
+  try {
+    localStorage.setItem(PREFS_KEY, JSON.stringify({
+      theme: document.documentElement.getAttribute("data-theme"),
+      lang: lang
+    }));
+  } catch (e) { /* preferenze non persistite */ }
+}
 
-const methodLabel = {
-  same: "Stessa specie",
-  special: "Combo speciale (esatta)",
-  formula: "Formula CombiRank (stima)",
-  gender: "Dipende dal genere",
-  unknown: "Dati non disponibili"
-};
+/* ============ HELPER UI ============ */
 
 function esc(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -572,15 +796,11 @@ function combobox({ options, value, placeholder, onSelect }) {
 const palCombobox = (opts) => combobox({ ...opts, options: ALL_PALS });
 const passiveCombobox = (opts) => combobox({ ...opts, options: ALL_PASSIVES });
 
-function updatePalboxCounter() {
-  document.getElementById("tab-btn-palbox").textContent = `1. Il mio Palbox (${state.owned.size})`;
-}
-
 /* ============ TAB: PALBOX ============ */
 
 function renderPalbox(view) {
   const card = el("div", { class: "pb-card" });
-  const input = el("input", { class: "pb-input", placeholder: "Cerca un Pal...", style: "margin-bottom:10px" });
+  const input = el("input", { class: "pb-input", placeholder: t("searchPal"), style: "margin-bottom:10px" });
   input.value = state.search;
   const grid = el("div", { class: "pb-pal-grid" });
 
@@ -597,7 +817,7 @@ function renderPalbox(view) {
       chip.addEventListener("click", () => {
         state.owned.has(p) ? state.owned.delete(p) : state.owned.add(p);
         saveState();
-        updatePalboxCounter();
+        updateTabLabels();
         updateGrid();
       });
       grid.appendChild(chip);
@@ -625,32 +845,31 @@ function renderCalc(view) {
     const box = el("div", { class: "result-box" });
     if (res.child) {
       box.appendChild(el("div", { style: "font-size:20px;font-weight:700" }, `→ ${res.child}`));
-      const badgeBg = res.method === "special" ? "var(--ok-bg)" : res.method === "same" ? "#e4e9dc" : "var(--warn-bg)";
-      box.appendChild(el("span", { class: "pb-badge", style: `background:${badgeBg};color:#333` }, methodLabel[res.method]));
+      const bg = res.method === "special" ? "var(--ok-bg)" : res.method === "same" ? "var(--neutral-bg)" : "var(--warn-bg)";
+      const fg = res.method === "special" ? "var(--ok-text)" : res.method === "same" ? "var(--neutral-text)" : "var(--warn-text)";
+      box.appendChild(el("span", { class: "pb-badge", style: `background:${bg};color:${fg}` }, t("method_" + res.method)));
       if (res.method === "formula") {
-        box.appendChild(el("p", { style: "font-size:12px;color:var(--muted-2);margin-top:8px;margin-bottom:0" },
-          `Rank obiettivo calcolato: ${res.targetRank}. Risultato scelto tra i Pal di rank noto in questo strumento — potrebbe non coincidere col Pal esatto scelto dal gioco se esiste un Pal con rank più vicino non incluso qui.`));
+        box.appendChild(el("p", { style: "font-size:12px;color:var(--muted-2);margin:8px 0 0" }, t("formulaNote", res.targetRank)));
       }
     } else {
-      box.appendChild(el("span", { class: "pb-badge", style: "background:var(--err-bg);color:var(--err-text)" }, methodLabel[res.method]));
-      if (res.note) box.appendChild(el("p", { style: "font-size:13px;margin-top:8px;margin-bottom:0" }, res.note));
+      box.appendChild(el("span", { class: "pb-badge", style: "background:var(--err-bg);color:var(--err-text)" }, t("method_" + res.method)));
+      if (res.note) box.appendChild(el("p", { style: "font-size:13px;margin:8px 0 0" }, t(res.note)));
       if (res.method === "unknown") {
-        box.appendChild(el("p", { style: "font-size:13px;margin-top:8px;margin-bottom:0;color:var(--muted-2)" },
-          "Non ho il valore di breeding power per uno o entrambi questi Pal — non è una combo speciale nota. Prova su un calcolatore online aggiornato per la 1.0 (es. la pagina Breeding di palworld.wiki.gg) per il risultato esatto."));
+        box.appendChild(el("p", { style: "font-size:13px;margin:8px 0 0;color:var(--muted-2)" }, t("unknownNote")));
       }
     }
     resultBox.appendChild(box);
   }
 
   const row = el("div", { class: "row2" });
-  const colA = el("div", {}, [el("label", { class: "tiny" }, "Genitore A")]);
+  const colA = el("div", {}, [el("label", { class: "tiny" }, t("parentA"))]);
   colA.appendChild(palCombobox({
-    value: state.parentA, placeholder: "Scrivi per cercare...",
+    value: state.parentA, placeholder: t("searchPlaceholder"),
     onSelect: (v) => { state.parentA = v; updateResult(); }
   }));
-  const colB = el("div", {}, [el("label", { class: "tiny" }, "Genitore B")]);
+  const colB = el("div", {}, [el("label", { class: "tiny" }, t("parentB"))]);
   colB.appendChild(palCombobox({
-    value: state.parentB, placeholder: "Scrivi per cercare...",
+    value: state.parentB, placeholder: t("searchPlaceholder"),
     onSelect: (v) => { state.parentB = v; updateResult(); }
   }));
   row.appendChild(colA);
@@ -721,19 +940,18 @@ function renderChain(view) {
     staticArea.innerHTML = "";
     const target = state.target;
     if (target && SAME_SPECIES_ONLY.has(target) && !state.owned.has(target)) {
-      staticArea.appendChild(el("p", { class: "err-box" },
-        `${target} si riproduce solo con se stesso (o si cattura in giro) — non è ottenibile incrociando altri Pal.`));
+      staticArea.appendChild(el("p", { class: "err-box" }, t("sameSpeciesOnly", target)));
     }
     if (target) {
       const specials = SPECIAL.filter(([a, b, c]) => c === target);
       if (specials.length > 0) {
         const wrap = el("div", { style: "margin-bottom:14px" });
-        wrap.appendChild(el("div", { style: "font-weight:600;font-size:14px;margin-bottom:6px" }, `Combo speciali note per ${target}:`));
+        wrap.appendChild(el("div", { style: "font-weight:600;font-size:14px;margin-bottom:6px" }, t("knownCombos", target)));
         specials.forEach(([a, b]) => {
-          const line = el("div", { style: "font-size:14px;padding:6px 10px;background:white;border-radius:8px;margin-bottom:4px;border:1px solid var(--border)" });
+          const line = el("div", { style: "font-size:14px;padding:6px 10px;background:var(--surface);border-radius:8px;margin-bottom:4px;border:1px solid var(--border)" });
           line.appendChild(document.createTextNode(`${a} + ${b} `));
           if (state.owned.has(a) && state.owned.has(b)) {
-            line.appendChild(el("span", { class: "pb-badge", style: "background:var(--ok-bg)" }, "li hai entrambi ✓"));
+            line.appendChild(el("span", { class: "pb-badge", style: "background:var(--ok-bg);color:var(--ok-text)" }, t("haveBoth")));
           }
           wrap.appendChild(line);
         });
@@ -744,49 +962,44 @@ function renderChain(view) {
 
   function updateResult() {
     btn.disabled = !state.target || state.chainRunning;
-    btn.textContent = state.chainRunning ? "Cerco..." : "Cerca catena dal mio Palbox";
+    btn.textContent = state.chainRunning ? t("searching") : t("searchChain");
     resultArea.innerHTML = "";
     const r = state.chainResult;
     if (!r) return;
     const box = el("div", { class: "result-box", style: "margin-top:14px" });
     if (r.found) {
       if (r.gen === 0) {
-        box.appendChild(el("p", { style: "margin:0" }, `Hai già ${state.target} nel Palbox!`));
+        box.appendChild(el("p", { style: "margin:0" }, t("alreadyOwned", state.target)));
       } else {
-        box.appendChild(el("div", { style: "font-weight:700;margin-bottom:6px" },
-          `Trovato in ${r.gen} generazion${r.gen > 1 ? "i" : "e"}:`));
+        box.appendChild(el("div", { style: "font-weight:700;margin-bottom:6px" }, t("foundIn", r.gen)));
         box.appendChild(el("div", {}, `${r.via[0]} + ${r.via[1]} → ${state.target}`));
-        box.appendChild(el("span", {
-          class: "pb-badge",
-          style: `background:${r.method === "special" ? "var(--ok-bg)" : "var(--warn-bg)"};margin-top:6px`
-        }, methodLabel[r.method]));
+        const bg = r.method === "special" ? "var(--ok-bg)" : "var(--warn-bg)";
+        const fg = r.method === "special" ? "var(--ok-text)" : "var(--warn-text)";
+        box.appendChild(el("span", { class: "pb-badge", style: `background:${bg};color:${fg};margin-top:6px` }, t("method_" + r.method)));
         if (r.gen > 1) {
-          box.appendChild(el("p", { style: "font-size:12px;color:var(--muted-2);margin-top:8px;margin-bottom:0" },
-            "Nota: se la generazione è > 1, uno o entrambi i genitori indicati potrebbero essere a loro volta un Pal da allevare prima (non uno che possiedi direttamente) — la ricerca esplora fino a 4 passaggi di incroci."));
+          box.appendChild(el("p", { style: "font-size:12px;color:var(--muted-2);margin:8px 0 0" }, t("chainNote")));
         }
       }
     } else {
-      box.appendChild(el("p", { style: "margin:0" },
-        "Nessuna catena trovata entro 4 generazioni con i Pal che hai selezionato nel Palbox (o mancano dati di rank per collegare i tuoi Pal a questo target)."));
+      box.appendChild(el("p", { style: "margin:0" }, t("chainNotFound")));
     }
     resultArea.appendChild(box);
   }
 
-  card.appendChild(el("label", { class: "tiny" }, "Pal che voglio ottenere"));
+  card.appendChild(el("label", { class: "tiny" }, t("targetLabel")));
   const cbWrap = el("div", { style: "margin-bottom:12px" });
   cbWrap.appendChild(palCombobox({
-    value: state.target, placeholder: "Scrivi per cercare...",
+    value: state.target, placeholder: t("searchPlaceholder"),
     onSelect: (v) => { state.target = v; state.chainResult = null; updateStatic(); updateResult(); }
   }));
   card.appendChild(cbWrap);
   card.appendChild(staticArea);
 
-  btn = el("button", { class: "pb-btn pb-btn-primary" }, "Cerca catena dal mio Palbox");
+  btn = el("button", { class: "pb-btn pb-btn-primary" }, t("searchChain"));
   btn.addEventListener("click", () => {
-    updateResult(); // mostra "Cerco..."
     runChainSearch(updateResult);
     btn.disabled = true;
-    btn.textContent = "Cerco...";
+    btn.textContent = t("searching");
   });
   card.appendChild(btn);
   card.appendChild(resultArea);
@@ -803,14 +1016,13 @@ function renderPlan(view) {
   const resultArea = el("div");
   let planBtn;
 
-  card.appendChild(el("p", { style: "font-size:13px;color:var(--muted);margin-top:0" },
-    "1) Scrivi fino a 4 passive che vuoi ottenere. 2) Per ogni Pal del tuo Palbox, spunta quali di queste passive ha già. 3) Scegli il Pal finale. Lo strumento capisce da quali specie ESATTE deve nascere il Pal finale (combo speciale o stessa specie) e cerca di portare le tue passive proprio su quelle specie — non su una specie a caso."));
+  card.appendChild(el("p", { style: "font-size:13px;color:var(--muted);margin-top:0" }, t("planIntro")));
 
   // 4 combobox passive
   const passiveGrid = el("div", { class: "grid4", style: "display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px" });
   state.passiveNames.forEach((v, i) => {
     passiveGrid.appendChild(passiveCombobox({
-      value: v, placeholder: `Passive ${i + 1}`,
+      value: v, placeholder: t("passiveN", i + 1),
       onSelect: (val) => {
         state.passiveNames[i] = val;
         state.planResult = null;
@@ -828,13 +1040,13 @@ function renderPlan(view) {
     const active = state.passiveNames.filter(Boolean);
     if (active.length === 0) return;
 
-    dynamicArea.appendChild(el("div", { style: "font-weight:600;font-size:14px;margin-bottom:6px" }, "Aggiungi un Pal con le sue passive"));
+    dynamicArea.appendChild(el("div", { style: "font-weight:600;font-size:14px;margin-bottom:6px" }, t("addPalTitle")));
 
     const quickRow = el("div", { style: "display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap" });
     const quickCbWrap = el("div", { style: "width:220px" });
     let addBtn;
     quickCbWrap.appendChild(palCombobox({
-      value: state.quickPal, placeholder: "Scrivi per cercare...",
+      value: state.quickPal, placeholder: t("searchPlaceholder"),
       onSelect: (v) => { state.quickPal = v; addBtn.disabled = !v; }
     }));
     quickRow.appendChild(quickCbWrap);
@@ -849,7 +1061,7 @@ function renderPlan(view) {
       quickRow.appendChild(lbl);
     });
 
-    addBtn = el("button", { class: "pb-btn pb-btn-primary" }, "+ Aggiungi");
+    addBtn = el("button", { class: "pb-btn pb-btn-primary" }, t("addBtn"));
     addBtn.disabled = !state.quickPal;
     addBtn.addEventListener("click", () => {
       state.owned.add(state.quickPal);
@@ -857,7 +1069,7 @@ function renderPlan(view) {
       state.quickPal = "";
       state.quickTags = {};
       saveState();
-      updatePalboxCounter();
+      updateTabLabels();
       updateDynamic();
     });
     quickRow.appendChild(addBtn);
@@ -865,10 +1077,10 @@ function renderPlan(view) {
 
     if (state.owned.size > 0) {
       const wrap = el("div", { style: "margin-bottom:14px" });
-      wrap.appendChild(el("div", { style: "font-weight:600;font-size:13px;margin-bottom:6px;color:var(--muted)" }, "Pal già taggati (puoi modificarli qui):"));
+      wrap.appendChild(el("div", { style: "font-weight:600;font-size:13px;margin-bottom:6px;color:var(--muted)" }, t("taggedTitle")));
       const scroll = el("div", { style: "max-height:220px;overflow-y:auto" });
       Array.from(state.owned).forEach((p) => {
-        const line = el("div", { style: "display:flex;align-items:center;gap:10px;padding:5px 8px;border-bottom:1px solid #e6e9de;font-size:13px;flex-wrap:wrap" });
+        const line = el("div", { style: "display:flex;align-items:center;gap:10px;padding:5px 8px;border-bottom:1px solid var(--border-soft);font-size:13px;flex-wrap:wrap" });
         line.appendChild(el("div", { style: "width:140px;font-weight:600" }, p));
         active.forEach((n) => {
           const lbl = el("label", { style: "display:flex;align-items:center;gap:4px" });
@@ -890,20 +1102,19 @@ function renderPlan(view) {
   }
 
   // Target + bottone
-  card.appendChild(el("label", { class: "tiny" }, "Pal finale che voglio ottenere"));
+  card.appendChild(el("label", { class: "tiny" }, t("planTargetLabel")));
   const targetWrap = el("div", { style: "margin-bottom:12px" });
   targetWrap.appendChild(palCombobox({
-    value: state.planTarget, placeholder: "Scrivi per cercare...",
+    value: state.planTarget, placeholder: t("searchPlaceholder"),
     onSelect: (v) => {
       state.planTarget = v;
       state.planResult = null;
-      planBtn.disabled = !state.planTarget || !state.passiveNames.some(Boolean);
       updateResult();
     }
   }));
   card.appendChild(targetWrap);
 
-  planBtn = el("button", { class: "pb-btn pb-btn-primary" }, "Genera piano");
+  planBtn = el("button", { class: "pb-btn pb-btn-primary" }, t("generatePlan"));
   planBtn.disabled = !state.planTarget || !state.passiveNames.some(Boolean);
   planBtn.addEventListener("click", () => {
     state.planResult = planPassives(Array.from(state.owned), state.tags, state.passiveNames, state.planTarget);
@@ -925,45 +1136,47 @@ function renderPlan(view) {
     const wrap = el("div", { style: "margin-top:16px" });
 
     if (r.error) {
-      wrap.appendChild(el("p", { class: "err-box" }, r.error));
+      wrap.appendChild(el("p", { class: "err-box" }, t(r.error)));
       resultArea.appendChild(wrap);
       return;
     }
 
     // Riepilogo coppia finale
     const pairHtml = r.sA === r.sB
-      ? `Per ottenere <b>${esc(r.targetSpecies)}</b> servono esattamente: due <b>${esc(r.sA)}</b> (stessa specie)`
-      : `Per ottenere <b>${esc(r.targetSpecies)}</b> servono esattamente: <b>${esc(r.sA)}</b> + <b>${esc(r.sB)}</b> <span style="color:var(--muted-2)">(${r.pairType === "special" ? "combo speciale fissa" : "incrocio"})</span>`;
-    wrap.appendChild(el("div", { style: "padding:10px;background:#eef1ea;border-radius:8px;margin-bottom:12px;font-size:13px", html: pairHtml }));
+      ? t("pairSame", esc(r.targetSpecies), esc(r.sA))
+      : t("pairCross", esc(r.targetSpecies), esc(r.sA), esc(r.sB),
+          r.pairType === "special" ? t("pairKindSpecial") : t("pairKindCross"));
+    wrap.appendChild(el("div", { style: "padding:10px;background:var(--soft);border-radius:8px;margin-bottom:12px;font-size:13px", html: pairHtml }));
 
     // Lati A/B
-    const sides = [{ role: r.sA, res: r.resA, label: "Lato A" }];
-    if (r.sB !== r.sA) sides.push({ role: r.sB, res: r.resB, label: "Lato B" });
+    const sides = [{ role: r.sA, res: r.resA, label: t("sideA") }];
+    if (r.sB !== r.sA) sides.push({ role: r.sB, res: r.resB, label: t("sideB") });
 
     sides.forEach((side) => {
-      const box = el("div", { style: "margin-bottom:12px;padding:12px;background:white;border:1px solid var(--border);border-radius:8px" });
-      box.appendChild(el("div", { style: "font-weight:700;margin-bottom:6px", html: `${esc(side.label)}: portare le passive su <b>${esc(side.role)}</b>` }));
+      const box = el("div", { style: "margin-bottom:12px;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:8px" });
+      box.appendChild(el("div", { style: "font-weight:700;margin-bottom:6px", html: t("sideTitle", esc(side.label), esc(side.role)) }));
 
       if (side.res.seeds.length === 0) {
-        box.appendChild(el("p", { style: "font-size:13px;color:var(--muted-2);margin:0" },
-          `Nessuno dei tuoi Pal taggati contribuisce qui — dovrai catturare/allevare un ${side.role} con le passive desiderate a parte.`));
+        box.appendChild(el("p", { style: "font-size:13px;color:var(--muted-2);margin:0" }, t("sideEmpty", side.role)));
       }
 
       side.res.seeds.forEach((s) => {
-        const seedBg = s.type === "unreachable" ? "#fdeeea" : "#f7f8f4";
+        const seedBg = s.type === "unreachable" ? "var(--err-soft)" : "var(--card)";
         const seed = el("div", { style: `font-size:13px;padding:6px 8px;margin-bottom:4px;border-radius:6px;background:${seedBg}` });
 
         if (s.type === "owned") {
-          seed.innerHTML = `✓ Possiedi già un ${esc(side.role)} con: ${maskNames(r.names, s.mask)}`;
+          seed.innerHTML = t("seedOwned", esc(side.role), maskNames(r.names, s.mask));
         } else if (s.type === "route") {
-          const header = `Da <b>${esc(s.fromLabel)}</b> (ha: ${maskNames(r.names, s.mask)}) a <b>${esc(side.role)}</b> in ${s.gen} generazion${s.gen > 1 ? "i" : "e"}:`;
-          let chain = `<span class="pb-badge" style="background:#eef1ea">${esc(s.from)}</span>`;
+          const header = t("seedRoute", esc(s.fromLabel), maskNames(r.names, s.mask), esc(side.role), s.gen);
+          let chain = `<span class="pb-badge" style="background:var(--soft)">${esc(s.from)}</span>`;
           s.path.forEach((step) => {
-            chain += ` <span style="color:var(--muted-2)">+ ${esc(step.partner)} →</span> <span class="pb-badge" style="background:${step.method === "special" ? "var(--ok-bg)" : "var(--warn-bg)"}">${esc(step.to)}</span>`;
+            const bg = step.method === "special" ? "var(--ok-bg)" : "var(--warn-bg)";
+            const fg = step.method === "special" ? "var(--ok-text)" : "var(--warn-text)";
+            chain += ` <span style="color:var(--muted-2)">+ ${esc(step.partner)} →</span> <span class="pb-badge" style="background:${bg};color:${fg}">${esc(step.to)}</span>`;
           });
           seed.innerHTML = `<div>${header}</div><div style="margin-top:4px;display:flex;flex-wrap:wrap;align-items:center;gap:4px">${chain}</div>`;
         } else if (s.type === "unreachable") {
-          seed.innerHTML = `⚠ Non trovo nessuna catena di incroci (entro 5 generazioni, partendo da qualunque partner) che porti le passive di <b>${esc(s.fromLabel)}</b> (${maskNames(r.names, s.mask)}) su un ${esc(side.role)}. Potrebbe comunque esistere con più generazioni, oppure procurati un ${esc(side.role)} con quella passive in altro modo (es. cattura in giro).`;
+          seed.innerHTML = t("seedUnreachable", esc(s.fromLabel), maskNames(r.names, s.mask), esc(side.role));
         }
         box.appendChild(seed);
       });
@@ -972,14 +1185,13 @@ function renderPlan(view) {
     });
 
     // Riepilogo finale
-    const finalBg = r.complete ? "#e5f3e8" : "#fdf3e3";
+    const finalBg = r.complete ? "var(--ok-soft)" : "var(--warn-soft)";
     const finalHtml = r.complete
-      ? `✅ Copri tutte e ${r.names.length === 4 ? "4" : r.names.length} le passive tra i due lati. Incrocio finale: <b>${esc(r.sA)}</b> + <b>${esc(r.sB)}</b> → <b>${esc(r.targetSpecies)}</b>, usando la Torta Speciale per forzare l'eredità di 4 passive.`
-      : `⚠ Con la situazione attuale copri ${r.coverage} passive su ${r.names.length}. Mancano: <b>${r.missing.map(esc).join(", ")}</b>. Procurati un Pal (posseduto o catturato) con quelle passive sul lato giusto, oppure ritagga.`;
+      ? t("planComplete", r.names.length, esc(r.sA), esc(r.sB), esc(r.targetSpecies))
+      : t("planPartial", r.coverage, r.names.length, r.missing.map(esc).join(", "));
     wrap.appendChild(el("div", { style: `padding:12px;background:${finalBg};border:1px solid var(--border);border-radius:8px`, html: finalHtml }));
 
-    wrap.appendChild(el("p", { style: "font-size:12px;color:var(--muted-2);margin-top:12px", html:
-      "Consiglio pratico: nella Breeding Farm, la <b>Torta Speciale (Special Cake)</b> forza l'eredità di 4 passive dai genitori nell'incrocio finale — usala lì. I passaggi con incroci \"diretti\" indicati sopra vanno comunque ripetuti più volte finché non ottieni un cucciolo che eredita davvero la passive voluta (l'eredità resta casuale)." }));
+    wrap.appendChild(el("p", { style: "font-size:12px;color:var(--muted-2);margin-top:12px", html: t("planTip") }));
 
     resultArea.appendChild(wrap);
   }
@@ -989,7 +1201,36 @@ function renderPlan(view) {
   view.appendChild(card);
 }
 
-/* ============ ROUTER TAB ============ */
+/* ============ TEMA, LINGUA, ROUTER ============ */
+
+function updateThemeButton() {
+  const dark = document.documentElement.getAttribute("data-theme") === "dark";
+  const btn = document.getElementById("theme-toggle");
+  btn.textContent = dark ? "☀" : "☾";
+  btn.title = dark ? t("themeToLight") : t("themeToDark");
+  btn.setAttribute("aria-label", btn.title);
+}
+
+function updateTabLabels() {
+  document.getElementById("tab-btn-palbox").textContent = t("tabPalbox", state.owned.size);
+  document.getElementById("tab-btn-calc").textContent = t("tabCalc");
+  document.getElementById("tab-btn-chain").textContent = t("tabChain");
+  document.getElementById("tab-btn-plan").textContent = t("tabPlan");
+}
+
+function applyLanguage() {
+  document.documentElement.setAttribute("lang", lang);
+  document.title = t("docTitle");
+  document.getElementById("app-title").textContent = t("title");
+  document.getElementById("app-subtitle").textContent = t("subtitle");
+  document.getElementById("footer-note").textContent = t("footerNote");
+  document.getElementById("reset-data").textContent = t("resetBtn");
+  document.querySelectorAll(".lang-switch button").forEach((b) => {
+    b.classList.toggle("active", b.dataset.lang === lang);
+  });
+  updateTabLabels();
+  updateThemeButton();
+}
 
 function renderTab() {
   const view = document.getElementById("view");
@@ -1007,21 +1248,39 @@ document.querySelectorAll(".pb-btn-tab").forEach((b) => {
   b.addEventListener("click", () => { state.tab = b.dataset.tab; renderTab(); });
 });
 
+document.getElementById("theme-toggle").addEventListener("click", () => {
+  const dark = document.documentElement.getAttribute("data-theme") === "dark";
+  document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+  updateThemeButton();
+  savePrefs();
+});
+
+document.querySelectorAll(".lang-switch button").forEach((b) => {
+  b.addEventListener("click", () => {
+    if (lang === b.dataset.lang) return;
+    lang = b.dataset.lang;
+    savePrefs();
+    applyLanguage();
+    renderTab();
+  });
+});
+
 document.getElementById("reset-data").addEventListener("click", () => {
-  if (!confirm("Cancellare Palbox, tag e passive salvati nel browser?")) return;
+  if (!confirm(t("resetConfirm"))) return;
   try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
   state.owned = new Set();
   state.tags = {};
   state.passiveNames = ["", "", "", ""];
   state.planResult = null;
   state.chainResult = null;
-  updatePalboxCounter();
+  applyLanguage();
   renderTab();
 });
 
 loadState();
-updatePalboxCounter();
+applyLanguage();
 renderTab();
+
 </script>
 </body>
 </html>
