@@ -181,29 +181,250 @@
 
 const ALL_PALS = "Aegidron,Amione,Anubis,Arsox,Astegon,Azurmane,Azurobe,Azurobe Cryst,Bakemi,Bastigor,Beakon,Beakon Cryst,Beegarde,Bellanoir,Bellanoir Libero,Blazamut,Blazamut Ryu,Blazehowl,Blazehowl Noct,Braloha,Bristla,Broncherry,Broncherry Aqua,Bulldosu,Bushi,Bushi Noct,Caprity,Caprity Noct,Carnibora,Cattiva,Cawgnito,Celaray,Celaray Lux,Celesdir,Celesdir Noct,Chikipi,Chillet,Chillet Ignis,Cinnamoth,Clovee,Cremis,Croajiro,Croajiro Noct,Cryolinx,Cryolinx Terra,Daedream,Dandilord,Dazemu,Dazzi,Dazzi Noct,Depresso,Digtoise,Dinossom,Dinossom Lux,Direhowl,Dogen,Dualith,Dualith Noct,Dumud,Dumud Gild,Dupin,Dynamoff,Eidrolon,Eidrolon Ignis,Eikthyrdeer,Eikthyrdeer Terra,Elgrove,Elgrove Cryst,Elizabee,Elphidran,Elphidran Aqua,Faleris,Faleris Aqua,Felbat,Fenglope,Fenglope Lux,Finsider,Finsider Ignis,Flambelle,Flaracle,Flopie,Foxcicle,Foxparks,Foxparks Cryst,Frostallion,Frostallion Noct,Frostplume,Fuack,Fuack Ignis,Fuddler,Galeclaw,Ghangler,Ghangler Ignis,Gildane,Gildra,Gloopie,Gloopie Primo,Gobfin,Gobfin Ignis,Gorirat,Gorirat Terra,Grintale,Grizzbolt,Gumoss,Gumoss Flower,Hangyu,Hangyu Cryst,Hartalis,Helzephyr,Helzephyr Lux,Herbil,Hoocrates,Hoodle,Icelyn,Incineram,Incineram Noct,Jelliette,Jellroy,Jetragon,Jolthog,Jolthog Cryst,Jormuntide,Jormuntide Ignis,Katress,Katress Ignis,Kelpsea,Kelpsea Ignis,Kikit,Killamari,Killamari Primo,Kingpaca,Kingpaca Cryst,Kitsun,Kitsun Noct,Knocklem,Knocklem Ignis,Lamball,Lapiron,Lapure,Leafan,Leezpunk,Leezpunk Ignis,Lifmunk,Loomen,Loupmoon,Loupmoon Cryst,Lovander,Lullu,Lunaris,Lyleen,Lyleen Noct,Majex,Mammorest,Mammorest Cryst,Maraith,Mau,Mau Cryst,Melpaca,Menasting,Menasting Terra,Mimog,Moldron,Moldron Cryst,Mossanda,Mossanda Lux,Mozzarina,Muffly,Munchill,Mycora,Necromus,Needoll,Needoll Noct,Neptilius,Nitemary,Nitemary Botan,Nitewing,Nox,Nyafia,Omascul,Ophydia,Orserk,Paladius,Palumba,Panthalus,Pengullet,Pengullet Lux,Penking,Penking Lux,Petallia,Petallia Ignis,Pierdon,Pierdon Cryst,Polapup,Polapup Terra,Prixter,Prixter Lux,Prunelia,Puffolt,Pupperai,Pyrin,Pyrin Noct,Quivern,Quivern Botan,Ragnahawk,Rayhound,Rayhound Cryst,Reindrix,Relaxaurus,Relaxaurus Lux,Renjishi,Reptyro,Reptyro Cryst,Ribbuny,Ribbuny Botan,Robinquill,Robinquill Terra,Rooby,Roujay,Rushoar,Sekhmet,Selyne,Shadowbeak,Shaolong,Shroomer,Shroomer Noct,Sibelyx,Sibelyx Primo,Silvance,Silvegis,Skutlass,Skutlass Ignis,Slowatt,Smokie,Smokie Cryst,Snock,Snock Lux,Snugloo,Solenne,Solmora,Solmora Lux,Sootseer,Souffline,Sparkit,Splatterina,Starryon,Starryon Primo,Surfent,Surfent Terra,Suzaku,Suzaku Aqua,Swee,Sweepa,Tanzee,Tanzee Ignis,Tarantriss,Teafant,Tetroise,Tetroise Primo,Tocotoco,Tombat,Tropicaw,Turtacle,Turtacle Terra,Univolt,Univolt Cryst,Vaelet,Valentail,Vanwyrm,Vanwyrm Cryst,Venusa,Verdash,Vixy,Warsect,Warsect Terra,Whalaska,Whalaska Ignis,Wispaw,Wistella,Wixen,Wixen Noct,Woolipop,Woolipop Terra,Wumpo,Wumpo Botan,Xenogard,Xenolord,Xenovader,Yakumo".split(",");
 
-const ALL_PASSIVES = [
-  "Abnormal", "Ace Swimmer", "Aggressive", "Artisan", "Babysitter", "Blood of the Dragon",
-  "Botanical Barrier", "Bottomless Stomach", "Brave", "Brittle", "Burly Body", "Capacitor",
-  "Celestial Emperor", "Cheery", "Clumsy", "Coldblooded", "Conceited", "Coward", "Dainty Eater",
-  "Demon God", "Demon\u2019s Hand", "Destructive", "Diamond Body", "Diet Lover", "Dimensional Leap",
-  "Divine Dragon", "Downtrodden", "Dragonkiller", "Earth Emperor", "Earthquake Resistant",
-  "Easygoing", "Eternal Engine", "Eternal Flame", "Farmhand", "Ferocious", "Fine Furs",
-  "Fit as a Fiddle", "Flame Emperor", "Fragrant Foliage", "Glutton", "God of Destruction",
-  "Hard Skin", "Healing Coach", "Heart of the Immovable King", "Heated Body", "Heavily Armored",
-  "Heavyweight", "Hermit Sage", "Hooligan", "Hydromaniac", "Ice Emperor", "Idiosyncratic",
-  "Immortality", "Impatient", "Infinite Stamina", "Insomnia", "Insulated Body", "Invader",
-  "King of the Waves", "Lavish Hospitality", "Legend", "Lightfooted", "Logging Foreman",
-  "Lord of Lightning", "Lord of the Sea", "Lord of the Underworld", "Lucky", "Lunker",
-  "Masochist", "Mastery of Fasting", "Mercy Hit", "Mine Foreman", "Motivational Leader",
-  "Musclehead", "Night Owl", "Nimble", "Noble", "Otherworldly Cells", "Pacifist", "Philanthropist",
-  "Positive Thinker", "Power of Gaia", "Pyromaniac", "Ranch Master", "Reload Master",
-  "Remarkable Craftsmanship", "Runner", "Sadist", "Sanctified Meat Shield", "Savior", "Serenity",
-  "Serious", "Service-Minded", "Shabby", "Sickly", "Siren of the Void", "Skymarcher",
-  "Sleek Stroke", "Slacker", "Spirit Emperor", "Spirit of Zen", "Stronghold Strategist",
-  "Suntan Lover", "Swift", "Twin-Edged Holy Blade", "Unstable", "Vampiric", "Vanguard",
-  "Veil of Darkness", "Waterproof", "Wellness Watcher", "Whopper", "Work Slave", "Workaholic",
-  "World Tree Seedbed"
+// Abilita' passive dei Pal: coppie [inglese, italiano].
+// Fonte: paldb.cc/en/Passive_Skills e paldb.cc/it/Passive_Skills (le due pagine usano lo stesso ordine).
+// Il nome INGLESE resta la chiave interna con cui vengono salvati i tag, cosi' i dati gia'
+// memorizzati nel browser restano validi anche cambiando lingua.
+const PASSIVES = [
+  ["Twin-Edged Holy Blade", "Lama sacra a doppio filo"],
+  ["Sanctified Meat Shield", "Muro vivente del santuario"],
+  ["Demon’s Hand", "Mano del diavolo"],
+  ["World Tree Seedbed", "Raccolto dell'albero sacro"],
+  ["Hermit Sage", "Savio eremita"],
+  ["Dimensional Leap", "Salto dimensionale"],
+  ["God of Destruction", "Divinità distruttrice"],
+  ["Remarkable Craftsmanship", "Tecnica sopraffina"],
+  ["Diamond Body", "Corpo di diamante"],
+  ["Lucky", "Fortunato"],
+  ["Legend", "Leggenda"],
+  ["Siren of the Void", "Strega"],
+  ["Eternal Flame", "Calamità delle fiamme"],
+  ["Invader", "Invasore"],
+  ["Demon God", "Divinità feroce"],
+  ["Mastery of Fasting", "Digiuno totale"],
+  ["Heart of the Immovable King", "Spirito inamovibile"],
+  ["Swift", "Velocità divina"],
+  ["Eternal Engine", "Moto perpetuo"],
+  ["Vampiric", "Vampiro"],
+  ["Lunker", "Dominatore"],
+  ["King of the Waves", "Dio delle onde"],
+  ["Savior", "Salvatore"],
+  ["Babysitter", "Babysitter"],
+  ["Idiosyncratic", "Mutazione idiosincratica"],
+  ["Lavish Hospitality", "Danza munifica"],
+  ["Ranch Master", "Genio dell'allevamento"],
+  ["Immortality", "Immortale"],
+  ["Heavily Armored", "Corazzato"],
+  ["Lightfooted", "Corpo leggero"],
+  ["Skymarcher", "Salti volanti"],
+  ["Artisan", "Spirito artigiano"],
+  ["Burly Body", "Corpo robusto"],
+  ["Ferocious", "Animo feroce"],
+  ["Vanguard", "Maestria negli assalti"],
+  ["Stronghold Strategist", "Padronanza della difesa"],
+  ["Motivational Leader", "Gran motivatore"],
+  ["Mine Foreman", "Maestria estrazione"],
+  ["Logging Foreman", "Maestria falegnameria"],
+  ["Diet Lover", "Sempre a dieta"],
+  ["Workaholic", "Stacanovismo"],
+  ["Celestial Emperor", "Supremazia sacra"],
+  ["Flame Emperor", "Supremazia ardente"],
+  ["Lord of the Sea", "Supremazia marina"],
+  ["Lord of Lightning", "Supremazia fulminante"],
+  ["Spirit Emperor", "Dominio sulla natura"],
+  ["Ice Emperor", "Supremazia glaciale"],
+  ["Earth Emperor", "Supremazia terrestre"],
+  ["Lord of the Underworld", "Dominio oltretomba"],
+  ["Divine Dragon", "Drago divino"],
+  ["Runner", "Velocista"],
+  ["Philanthropist", "Filantropo"],
+  ["Serenity", "Stato di quiete"],
+  ["Infinite Stamina", "Resistenza infinita"],
+  ["Noble", "Nobile"],
+  ["Ace Swimmer", "Gran nuotatore"],
+  ["Service-Minded", "Servizio spirituale"],
+  ["Farmhand", "Principiante dell'allevamento"],
+  ["Wellness Watcher", "Anti-stanchezza"],
+  ["Healing Coach", "Coach guaritore"],
+  ["Reload Master", "Maestro della ricarica"],
+  ["Musclehead", "Tutto muscoli"],
+  ["Heavyweight", "Peso massimo"],
+  ["Serious", "Diligenza"],
+  ["Hard Skin", "Pelle dura"],
+  ["Brave", "Animo prode"],
+  ["Hooligan", "Brutalità"],
+  ["Conceited", "Vanità"],
+  ["Sadist", "Sadismo"],
+  ["Masochist", "Masochismo"],
+  ["Work Slave", "Crumiro"],
+  ["Aggressive", "Arroganza"],
+  ["Abnormal", "Anomalo"],
+  ["Suntan Lover", "Termofilo"],
+  ["Waterproof", "Idrorepellente"],
+  ["Insulated Body", "Isolante"],
+  ["Botanical Barrier", "Antivegetazione"],
+  ["Heated Body", "Antighiaccio"],
+  ["Earthquake Resistant", "Antisismico"],
+  ["Cheery", "Tipo cupo"],
+  ["Dragonkiller", "Ammazzadraghi"],
+  ["Spirit of Zen", "Intuizione del nulla"],
+  ["Pyromaniac", "Giocare col fuoco"],
+  ["Hydromaniac", "Giocare con l'acqua"],
+  ["Capacitor", "Condensatore"],
+  ["Fragrant Foliage", "Fragranza naturale"],
+  ["Coldblooded", "Sangue freddo"],
+  ["Power of Gaia", "Potere della terra"],
+  ["Veil of Darkness", "Coltre oscura"],
+  ["Blood of the Dragon", "Stirpe draconica"],
+  ["Dainty Eater", "Frugalità"],
+  ["Positive Thinker", "Atteggiamento positivo"],
+  ["Nimble", "Rapidità"],
+  ["Insomnia", "Insonnia"],
+  ["Impatient", "Impazienza"],
+  ["Fit as a Fiddle", "Energia della gioventù"],
+  ["Fine Furs", "Ottimo pedigree"],
+  ["Otherworldly Cells", "Cellule sconosciute"],
+  ["Sleek Stroke", "Nuoto aggraziato"],
+  ["Clumsy", "Goffaggine"],
+  ["Downtrodden", "Debolezza"],
+  ["Coward", "Codardia"],
+  ["Glutton", "Fame vorace"],
+  ["Unstable", "Irrequietezza"],
+  ["Mercy Hit", "Pietà"],
+  ["Easygoing", "Nessuna voglia"],
+  ["Sickly", "Recluso"],
+  ["Shabby", "Malandato"],
+  ["Night Owl", "Nottambulo"],
+  ["Bottomless Stomach", "Pozzo senza fondo"],
+  ["Destructive", "Nichilismo"],
+  ["Slacker", "Svogliatezza"],
+  ["Brittle", "Ossa fragili"],
+  ["Pacifist", "Piedi di piombo"],
 ];
+
+const PASSIVE_FX = {
+  "Twin-Edged Holy Blade": [["atk", 50], ["def", -30], ["txt", "worldTree", true]],
+  "Sanctified Meat Shield": [["def", 50], ["atk", -30], ["txt", "worldTree", true]],
+  "Demon’s Hand": [["work", 90], ["san", -15], ["txt", "worldTree", true]],
+  "World Tree Seedbed": [["hunger", 50], ["hp", -20], ["txt", "worldTree", true]],
+  "Hermit Sage": [["san", 50], ["work", -20], ["txt", "worldTree", true]],
+  "Dimensional Leap": [["move", 50], ["hunger", -15], ["txt", "worldTree", true]],
+  "God of Destruction": [["atk", 40], ["def", 20], ["hp", -50], ["txt", "worldTree", true]],
+  "Remarkable Craftsmanship": [["work", 75]],
+  "Diamond Body": [["def", 30], ["txt", "immuneFlinch", true], ["txt", "immuneKnockback", true]],
+  "Lucky": [["atk", 15], ["def", 15], ["work", 20]],
+  "Legend": [["atk", 20], ["def", 20], ["move", 20]],
+  "Siren of the Void": [["elemAtk", "dark", 30], ["elemAtk", "ice", 30]],
+  "Eternal Flame": [["elemAtk", "fire", 30], ["elemAtk", "elec", 30]],
+  "Invader": [["elemAtk", "dark", 30], ["elemAtk", "dragon", 30]],
+  "Demon God": [["atk", 30], ["def", 5]],
+  "Mastery of Fasting": [["hunger", 20]],
+  "Heart of the Immovable King": [["san", 20]],
+  "Swift": [["move", 30]],
+  "Eternal Engine": [["stam", 75], ["txt", "rideOnly", null]],
+  "Vampiric": [["txt", "lifeStealTxt", true], ["txt", "noSleep", true]],
+  "Lunker": [["elemAtk", "water", 20], ["elemAtk", "ice", 20], ["def", 20]],
+  "King of the Waves": [["waterMove", 50]],
+  "Savior": [["elemAtk", "normal", 30], ["elemAtk", "grass", 30]],
+  "Babysitter": [["txt", "babysitter", true]],
+  "Idiosyncratic": [["palPlayerHpRegen", 50], ["def", 25], ["txt", "immunePoison", true], ["txt", "immuneBurn", true]],
+  "Lavish Hospitality": [["drop", 100]],
+  "Ranch Master": [["farming", 2]],
+  "Immortality": [["lifeSteal", 5], ["palHpRegen", 100], ["atk", 15]],
+  "Heavily Armored": [["txt", "immuneExplosion", true]],
+  "Lightfooted": [["jump", 1]],
+  "Skymarcher": [["jump", 2]],
+  "Artisan": [["work", 50]],
+  "Burly Body": [["def", 20], ["txt", "immuneFlinch", true]],
+  "Ferocious": [["atk", 20]],
+  "Vanguard": [["playerAtk", 10]],
+  "Stronghold Strategist": [["playerDef", 10]],
+  "Motivational Leader": [["playerWork", 25]],
+  "Mine Foreman": [["playerMining", 25]],
+  "Logging Foreman": [["playerLogging", 25]],
+  "Diet Lover": [["hunger", 15]],
+  "Workaholic": [["san", 15]],
+  "Celestial Emperor": [["elemAtk", "normal", 30]],
+  "Flame Emperor": [["elemAtk", "fire", 30]],
+  "Lord of the Sea": [["elemAtk", "water", 30]],
+  "Lord of Lightning": [["elemAtk", "elec", 30]],
+  "Spirit Emperor": [["elemAtk", "grass", 30]],
+  "Ice Emperor": [["elemAtk", "ice", 30]],
+  "Earth Emperor": [["elemAtk", "earth", 30]],
+  "Lord of the Underworld": [["elemAtk", "dark", 30]],
+  "Divine Dragon": [["elemAtk", "dragon", 30]],
+  "Runner": [["move", 20]],
+  "Philanthropist": [["txt", "philanthropist", true]],
+  "Serenity": [["cooldown", 30], ["atk", 10]],
+  "Infinite Stamina": [["stam", 50], ["txt", "rideOnly", null]],
+  "Noble": [["sell", 5]],
+  "Ace Swimmer": [["waterMove", 40]],
+  "Service-Minded": [["drop", 50]],
+  "Farmhand": [["farming", 1]],
+  "Wellness Watcher": [["playerStam", -5]],
+  "Healing Coach": [["playerHpRegen", 5]],
+  "Reload Master": [["playerReload", 4]],
+  "Musclehead": [["atk", 30], ["work", -50]],
+  "Heavyweight": [["def", 20], ["txt", "immuneKnockback", true]],
+  "Serious": [["work", 20]],
+  "Hard Skin": [["def", 10]],
+  "Brave": [["atk", 10]],
+  "Hooligan": [["atk", 15], ["work", -10]],
+  "Conceited": [["work", 10], ["def", -10]],
+  "Sadist": [["atk", 15], ["def", -15]],
+  "Masochist": [["def", 15], ["atk", -15]],
+  "Work Slave": [["work", 30], ["atk", -30]],
+  "Aggressive": [["atk", 10], ["def", -10]],
+  "Abnormal": [["elemRes", "normal", 10]],
+  "Suntan Lover": [["elemRes", "fire", 10]],
+  "Waterproof": [["elemRes", "water", 10]],
+  "Insulated Body": [["elemRes", "elec", 10]],
+  "Botanical Barrier": [["elemRes", "grass", 10]],
+  "Heated Body": [["elemRes", "ice", 10]],
+  "Earthquake Resistant": [["elemRes", "earth", 10]],
+  "Cheery": [["elemRes", "dark", 10]],
+  "Dragonkiller": [["elemRes", "dragon", 10]],
+  "Spirit of Zen": [["elemAtk", "normal", 10]],
+  "Pyromaniac": [["elemAtk", "fire", 10]],
+  "Hydromaniac": [["elemAtk", "water", 10]],
+  "Capacitor": [["elemAtk", "elec", 10]],
+  "Fragrant Foliage": [["elemAtk", "grass", 10]],
+  "Coldblooded": [["elemAtk", "ice", 10]],
+  "Power of Gaia": [["elemAtk", "earth", 10]],
+  "Veil of Darkness": [["elemAtk", "dark", 10]],
+  "Blood of the Dragon": [["elemAtk", "dragon", 10]],
+  "Dainty Eater": [["hunger", 10]],
+  "Positive Thinker": [["san", 10]],
+  "Nimble": [["move", 10]],
+  "Insomnia": [["txt", "noSleep", true]],
+  "Impatient": [["cooldown", 15]],
+  "Fit as a Fiddle": [["stam", 25], ["txt", "rideOnly", null]],
+  "Fine Furs": [["sell", 3]],
+  "Otherworldly Cells": [["atk", 10], ["elemRes", "fire", 15], ["elemRes", "elec", 15]],
+  "Sleek Stroke": [["waterMove", 30]],
+  "Clumsy": [["work", -10]],
+  "Downtrodden": [["def", -10]],
+  "Coward": [["atk", -10]],
+  "Glutton": [["hunger", -10]],
+  "Unstable": [["san", -10]],
+  "Mercy Hit": [["txt", "mercyHit", null]],
+  "Easygoing": [["cooldown", -15]],
+  "Sickly": [["stam", -25], ["txt", "rideOnly", null]],
+  "Shabby": [["sell", -10]],
+  "Night Owl": [["txt", "nightOwl", false]],
+  "Bottomless Stomach": [["hunger", -15]],
+  "Destructive": [["san", -15]],
+  "Slacker": [["work", -30]],
+  "Brittle": [["def", -20]],
+  "Pacifist": [["atk", -20]],
+};
+
+const PASSIVE_IT = new Map(PASSIVES);
+const PASSIVE_KEY_BY_LABEL = new Map();
+PASSIVES.forEach(([en, it]) => {
+  PASSIVE_KEY_BY_LABEL.set(en, en);
+  PASSIVE_KEY_BY_LABEL.set(it, en);
+});
 
 // Combo speciali incrociate (fisse, sovrascrivono la formula). Stesse specie X+X=X è sempre valido e gestito a parte.
 const SPECIAL = [
@@ -594,6 +815,36 @@ const I18N = {
     chainNote: "Nota: se la generazione è maggiore di 1, uno o entrambi i genitori indicati potrebbero essere a loro volta un Pal da allevare prima. La ricerca esplora fino a 4 passaggi di incroci.",
     chainNotFound: "Nessuna catena trovata entro 4 generazioni con i Pal selezionati nel Palbox.",
 
+    recapTitle: "Cosa otterrai con queste passive:",
+    fx_atk: "Attacco", fx_def: "Difesa", fx_work: "Velocità attività",
+    fx_move: "Velocità di movimento", fx_hp: "PV massimi", fx_stam: "Resistenza massima",
+    fx_waterMove: "Velocità in acqua", fx_sell: "Valore di vendita", fx_drop: "Oggetti lasciati",
+    fx_cooldown: "Riduzione recupero abilità", fx_lifeSteal: "Risucchio vitale",
+    fx_palHpRegen: "Rigenerazione PV dei Pal", fx_palPlayerHpRegen: "Rigenerazione PV Pal e giocatore",
+    fx_playerAtk: "Attacco del giocatore", fx_playerDef: "Difesa del giocatore",
+    fx_playerWork: "Velocità attività del giocatore", fx_playerMining: "Efficienza estrattiva del giocatore",
+    fx_playerLogging: "Efficienza taglio legna del giocatore", fx_playerStam: "Consumo resistenza del giocatore",
+    fx_playerHpRegen: "Rigenerazione PV del giocatore", fx_playerReload: "Velocità di ricarica",
+    fx_farming: "Attitudine Allevamento", fx_jump: "Salti da cavalcatura",
+    fx_hungerSlower: (v) => `Fame più lenta +${v}%`,
+    fx_hungerFaster: (v) => `Fame più rapida +${v}%`,
+    fx_sanSlower: (v) => `Calo SAN più lento +${v}%`,
+    fx_sanFaster: (v) => `Calo SAN più rapido +${v}%`,
+    fx_elemAtk: (e) => `Danno ${e} inflitto`,
+    fx_elemRes: (e) => `Resistenza ${e}`,
+    el_normal: "non elementale", el_fire: "fuoco", el_water: "acqua", el_elec: "elettricità",
+    el_grass: "erba", el_ice: "ghiaccio", el_earth: "terra", el_dark: "oscurità", el_dragon: "drago",
+    fxt_worldTree: "Non distrugge le risorse dell'Albero del Mondo",
+    fxt_immuneFlinch: "Immune al tentennamento", fxt_immuneKnockback: "Immune al respingimento",
+    fxt_immunePoison: "Immune al veleno", fxt_immuneBurn: "Immune alle ustioni",
+    fxt_immuneExplosion: "Immune ai danni da esplosione",
+    fxt_lifeStealTxt: "Assorbe parte dei danni inflitti recuperando PV",
+    fxt_noSleep: "Lavora di notte senza dormire",
+    fxt_nightOwl: "Notturno: di giorno dorme",
+    fxt_mercyHit: "Pacifista: non porta il bersaglio sotto 1 PV",
+    fxt_rideOnly: "Solo per i Pal cavalcabili",
+    fxt_babysitter: "Al ranch: deposizione e schiusa uova +30%",
+    fxt_philanthropist: "Al ranch: velocità di riproduzione +100%",
     planIntro: "1) Scrivi fino a 4 passive che vuoi ottenere. 2) Per ogni Pal del tuo Palbox, spunta quali di queste passive ha già. 3) Scegli il Pal finale. Lo strumento capisce da quali specie ESATTE deve nascere il Pal finale (combo speciale o stessa specie) e cerca di portare le tue passive proprio su quelle specie, non su una specie a caso.",
     passiveN: (i) => `Passive ${i}`,
     addPalTitle: "Aggiungi un Pal con le sue passive",
@@ -659,6 +910,36 @@ const I18N = {
     chainNote: "Note: if the generation count is above 1, one or both listed parents may themselves need to be bred first. The search explores up to 4 breeding steps.",
     chainNotFound: "No chain found within 4 generations using the Pals selected in your Palbox.",
 
+    recapTitle: "What these passives give you:",
+    fx_atk: "Attack", fx_def: "Defense", fx_work: "Work speed",
+    fx_move: "Movement speed", fx_hp: "Max HP", fx_stam: "Max stamina",
+    fx_waterMove: "Movement speed on water", fx_sell: "Item sale value", fx_drop: "Dropped items",
+    fx_cooldown: "Skill cooldown reduction", fx_lifeSteal: "Life steal",
+    fx_palHpRegen: "Pal HP regeneration", fx_palPlayerHpRegen: "Pal & player HP regeneration",
+    fx_playerAtk: "Player attack", fx_playerDef: "Player defense",
+    fx_playerWork: "Player work speed", fx_playerMining: "Player mining efficiency",
+    fx_playerLogging: "Player logging efficiency", fx_playerStam: "Player stamina consumption",
+    fx_playerHpRegen: "Player HP regeneration", fx_playerReload: "Reload speed",
+    fx_farming: "Farming suitability", fx_jump: "Mounted jumps",
+    fx_hungerSlower: (v) => `Hunger drains ${v}% slower`,
+    fx_hungerFaster: (v) => `Hunger drains ${v}% faster`,
+    fx_sanSlower: (v) => `SAN drops ${v}% slower`,
+    fx_sanFaster: (v) => `SAN drops ${v}% faster`,
+    fx_elemAtk: (e) => `${e} damage dealt`,
+    fx_elemRes: (e) => `${e} resistance`,
+    el_normal: "Neutral", el_fire: "Fire", el_water: "Water", el_elec: "Lightning",
+    el_grass: "Grass", el_ice: "Ice", el_earth: "Earth", el_dark: "Dark", el_dragon: "Dragon",
+    fxt_worldTree: "World Tree resources aren't destroyed when approached",
+    fxt_immuneFlinch: "Immune to flinch", fxt_immuneKnockback: "Immune to knockback",
+    fxt_immunePoison: "Immune to poison", fxt_immuneBurn: "Immune to burn",
+    fxt_immuneExplosion: "Immune to explosion damage",
+    fxt_lifeStealTxt: "Absorbs part of the damage dealt to restore HP",
+    fxt_noSleep: "Works at night without sleeping",
+    fxt_nightOwl: "Nocturnal: sleeps during the day",
+    fxt_mercyHit: "Pacifist: won't take the target below 1 HP",
+    fxt_rideOnly: "Rideable Pals only",
+    fxt_babysitter: "At a Breeding Farm: egg laying and hatching +30%",
+    fxt_philanthropist: "At a Breeding Farm: breeding speed +100%",
     planIntro: "1) Enter up to 4 passives you want. 2) For each Pal in your Palbox, tick which of those passives it already has. 3) Pick the final Pal. The tool works out which EXACT species the final Pal must be born from (special combo or same species) and tries to bring your passives onto those species, not onto a random one.",
     passiveN: (i) => `Passive ${i}`,
     addPalTitle: "Add a Pal with its passives",
@@ -802,7 +1083,59 @@ function combobox({ options, value, placeholder, onSelect }) {
 }
 
 const palCombobox = (opts) => combobox({ ...opts, options: ALL_PALS });
-const passiveCombobox = (opts) => combobox({ ...opts, options: ALL_PASSIVES });
+
+// Etichetta della passive nella lingua corrente (la chiave interna resta sempre l'inglese).
+function passiveLabel(key) {
+  if (!key) return "";
+  return lang === "it" ? (PASSIVE_IT.get(key) || key) : key;
+}
+
+// Elenco delle passive nella lingua corrente, in ordine alfabetico secondo quella lingua.
+function passiveOptions() {
+  return PASSIVES.map(([en]) => passiveLabel(en))
+    .sort((a, b) => a.localeCompare(b, lang));
+}
+
+// La combobox mostra i nomi tradotti ma restituisce sempre la chiave inglese.
+const passiveCombobox = (opts) => combobox({
+  ...opts,
+  options: passiveOptions(),
+  value: passiveLabel(opts.value),
+  onSelect: (label) => opts.onSelect(PASSIVE_KEY_BY_LABEL.get(label) || "")
+});
+
+// Trasforma un effetto in { testo, buono } per il riepilogo.
+// "buono" vale true (bonus), false (malus) o null (informativo).
+function fxParts(fx) {
+  const type = fx[0];
+  const pct = (v) => (v > 0 ? "+" : "\u2212") + Math.abs(v) + "%";
+  const flat = (v) => (v > 0 ? "+" : "\u2212") + Math.abs(v);
+
+  switch (type) {
+    case "elemAtk":
+      return { text: `${t("fx_elemAtk", t("el_" + fx[1]))} ${pct(fx[2])}`, good: fx[2] > 0 };
+    case "elemRes":
+      return { text: `${t("fx_elemRes", t("el_" + fx[1]))} ${pct(fx[2])}`, good: fx[2] > 0 };
+    case "hunger":
+      return fx[1] > 0
+        ? { text: t("fx_hungerSlower", fx[1]), good: true }
+        : { text: t("fx_hungerFaster", Math.abs(fx[1])), good: false };
+    case "san":
+      return fx[1] > 0
+        ? { text: t("fx_sanSlower", fx[1]), good: true }
+        : { text: t("fx_sanFaster", Math.abs(fx[1])), good: false };
+    case "farming":
+    case "jump":
+      return { text: `${t("fx_" + type)} ${flat(fx[1])}`, good: fx[1] > 0 };
+    case "playerStam":
+      // meno consumo di resistenza e' un vantaggio, quindi il segno va letto al contrario
+      return { text: `${t("fx_playerStam")} ${pct(fx[1])}`, good: fx[1] < 0 };
+    case "txt":
+      return { text: t("fxt_" + fx[1]), good: fx[2] === undefined ? null : fx[2] };
+    default:
+      return { text: `${t("fx_" + type)} ${pct(fx[1])}`, good: fx[1] > 0 };
+  }
+}
 
 /* ============ TAB: PALBOX ============ */
 
@@ -1020,6 +1353,7 @@ function renderChain(view) {
 
 function renderPlan(view) {
   const card = el("div", { class: "pb-card" });
+  const recapArea = el("div");      // riepilogo bonus/malus delle passive scelte
   const dynamicArea = el("div");   // quick-add + lista taggati (dipende dalle passive scelte)
   const resultArea = el("div");
   let planBtn;
@@ -1035,13 +1369,42 @@ function renderPlan(view) {
         state.passiveNames[i] = val;
         state.planResult = null;
         saveState();
+        updateRecap();
         updateDynamic();
         updateResult();
       }
     }));
   });
   card.appendChild(passiveGrid);
+  card.appendChild(recapArea);
   card.appendChild(dynamicArea);
+
+  // Riepilogo di bonus e malus delle passive scelte
+  function updateRecap() {
+    recapArea.innerHTML = "";
+    const active = state.passiveNames.filter(Boolean);
+    if (active.length === 0) return;
+
+    const wrap = el("div", { style: "margin-bottom:14px" });
+    wrap.appendChild(el("div", { style: "font-weight:600;font-size:13px;margin-bottom:6px;color:var(--muted)" }, t("recapTitle")));
+
+    active.forEach((key) => {
+      const row = el("div", { style: "padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:6px" });
+      row.appendChild(el("div", { style: "font-weight:700;font-size:13px;margin-bottom:5px" }, passiveLabel(key)));
+
+      const chips = el("div", { style: "display:flex;flex-wrap:wrap;gap:4px" });
+      (PASSIVE_FX[key] || []).forEach((fx) => {
+        const p = fxParts(fx);
+        const bg = p.good === true ? "var(--ok-bg)" : p.good === false ? "var(--err-bg)" : "var(--neutral-bg)";
+        const fg = p.good === true ? "var(--ok-text)" : p.good === false ? "var(--err-text)" : "var(--neutral-text)";
+        chips.appendChild(el("span", { class: "pb-badge", style: `background:${bg};color:${fg};font-weight:500` }, p.text));
+      });
+      row.appendChild(chips);
+      wrap.appendChild(row);
+    });
+
+    recapArea.appendChild(wrap);
+  }
 
   function updateDynamic() {
     dynamicArea.innerHTML = "";
@@ -1065,7 +1428,7 @@ function renderPlan(view) {
       cb.checked = !!state.quickTags[n];
       cb.addEventListener("change", () => { state.quickTags[n] = cb.checked; });
       lbl.appendChild(cb);
-      lbl.appendChild(document.createTextNode(n));
+      lbl.appendChild(document.createTextNode(passiveLabel(n)));
       quickRow.appendChild(lbl);
     });
 
@@ -1099,7 +1462,7 @@ function renderPlan(view) {
             saveState();
           });
           lbl.appendChild(cb);
-          lbl.appendChild(document.createTextNode(n));
+          lbl.appendChild(document.createTextNode(passiveLabel(n)));
           line.appendChild(lbl);
         });
 
@@ -1145,7 +1508,7 @@ function renderPlan(view) {
   card.appendChild(resultArea);
 
   function maskNames(names, mask) {
-    return names.filter((_, idx) => mask & (1 << idx)).map(esc).join(", ");
+    return names.filter((_, idx) => mask & (1 << idx)).map((n) => esc(passiveLabel(n))).join(", ");
   }
 
   function updateResult() {
@@ -1209,7 +1572,7 @@ function renderPlan(view) {
     const finalBg = r.complete ? "var(--ok-soft)" : "var(--warn-soft)";
     const finalHtml = r.complete
       ? t("planComplete", r.names.length, esc(r.sA), esc(r.sB), esc(r.targetSpecies))
-      : t("planPartial", r.coverage, r.names.length, r.missing.map(esc).join(", "));
+      : t("planPartial", r.coverage, r.names.length, r.missing.map((n) => esc(passiveLabel(n))).join(", "));
     wrap.appendChild(el("div", { style: `padding:12px;background:${finalBg};border:1px solid var(--border);border-radius:8px`, html: finalHtml }));
 
     wrap.appendChild(el("p", { style: "font-size:12px;color:var(--muted-2);margin-top:12px", html: t("planTip") }));
@@ -1217,6 +1580,7 @@ function renderPlan(view) {
     resultArea.appendChild(wrap);
   }
 
+  updateRecap();
   updateDynamic();
   updateResult();
   view.appendChild(card);
