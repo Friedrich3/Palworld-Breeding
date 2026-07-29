@@ -181,6 +181,68 @@
 
 const ALL_PALS = "Aegidron,Amione,Anubis,Arsox,Astegon,Azurmane,Azurobe,Azurobe Cryst,Bakemi,Bastigor,Beakon,Beakon Cryst,Beegarde,Bellanoir,Bellanoir Libero,Blazamut,Blazamut Ryu,Blazehowl,Blazehowl Noct,Braloha,Bristla,Broncherry,Broncherry Aqua,Bulldosu,Bushi,Bushi Noct,Caprity,Caprity Noct,Carnibora,Cattiva,Cawgnito,Celaray,Celaray Lux,Celesdir,Celesdir Noct,Chikipi,Chillet,Chillet Ignis,Cinnamoth,Clovee,Cremis,Croajiro,Croajiro Noct,Cryolinx,Cryolinx Terra,Daedream,Dandilord,Dazemu,Dazzi,Dazzi Noct,Depresso,Digtoise,Dinossom,Dinossom Lux,Direhowl,Dogen,Dualith,Dualith Noct,Dumud,Dumud Gild,Dupin,Dynamoff,Eidrolon,Eidrolon Ignis,Eikthyrdeer,Eikthyrdeer Terra,Elgrove,Elgrove Cryst,Elizabee,Elphidran,Elphidran Aqua,Faleris,Faleris Aqua,Felbat,Fenglope,Fenglope Lux,Finsider,Finsider Ignis,Flambelle,Flaracle,Flopie,Foxcicle,Foxparks,Foxparks Cryst,Frostallion,Frostallion Noct,Frostplume,Fuack,Fuack Ignis,Fuddler,Galeclaw,Ghangler,Ghangler Ignis,Gildane,Gildra,Gloopie,Gloopie Primo,Gobfin,Gobfin Ignis,Gorirat,Gorirat Terra,Grintale,Grizzbolt,Gumoss,Gumoss Flower,Hangyu,Hangyu Cryst,Hartalis,Helzephyr,Helzephyr Lux,Herbil,Hoocrates,Hoodle,Icelyn,Incineram,Incineram Noct,Jelliette,Jellroy,Jetragon,Jolthog,Jolthog Cryst,Jormuntide,Jormuntide Ignis,Katress,Katress Ignis,Kelpsea,Kelpsea Ignis,Kikit,Killamari,Killamari Primo,Kingpaca,Kingpaca Cryst,Kitsun,Kitsun Noct,Knocklem,Knocklem Ignis,Lamball,Lapiron,Lapure,Leafan,Leezpunk,Leezpunk Ignis,Lifmunk,Loomen,Loupmoon,Loupmoon Cryst,Lovander,Lullu,Lunaris,Lyleen,Lyleen Noct,Majex,Mammorest,Mammorest Cryst,Maraith,Mau,Mau Cryst,Melpaca,Menasting,Menasting Terra,Mimog,Moldron,Moldron Cryst,Mossanda,Mossanda Lux,Mozzarina,Muffly,Munchill,Mycora,Necromus,Needoll,Needoll Noct,Neptilius,Nitemary,Nitemary Botan,Nitewing,Nox,Nyafia,Omascul,Ophydia,Orserk,Paladius,Palumba,Panthalus,Pengullet,Pengullet Lux,Penking,Penking Lux,Petallia,Petallia Ignis,Pierdon,Pierdon Cryst,Polapup,Polapup Terra,Prixter,Prixter Lux,Prunelia,Puffolt,Pupperai,Pyrin,Pyrin Noct,Quivern,Quivern Botan,Ragnahawk,Rayhound,Rayhound Cryst,Reindrix,Relaxaurus,Relaxaurus Lux,Renjishi,Reptyro,Reptyro Cryst,Ribbuny,Ribbuny Botan,Robinquill,Robinquill Terra,Rooby,Roujay,Rushoar,Sekhmet,Selyne,Shadowbeak,Shaolong,Shroomer,Shroomer Noct,Sibelyx,Sibelyx Primo,Silvance,Silvegis,Skutlass,Skutlass Ignis,Slowatt,Smokie,Smokie Cryst,Snock,Snock Lux,Snugloo,Solenne,Solmora,Solmora Lux,Sootseer,Souffline,Sparkit,Splatterina,Starryon,Starryon Primo,Surfent,Surfent Terra,Suzaku,Suzaku Aqua,Swee,Sweepa,Tanzee,Tanzee Ignis,Tarantriss,Teafant,Tetroise,Tetroise Primo,Tocotoco,Tombat,Tropicaw,Turtacle,Turtacle Terra,Univolt,Univolt Cryst,Vaelet,Valentail,Vanwyrm,Vanwyrm Cryst,Venusa,Verdash,Vixy,Warsect,Warsect Terra,Whalaska,Whalaska Ignis,Wispaw,Wistella,Wixen,Wixen Noct,Woolipop,Woolipop Terra,Wumpo,Wumpo Botan,Xenogard,Xenolord,Xenovader,Yakumo".split(",");
 
+// Numero nel Paldex (Paldeck) per ciascun Pal. Le forme variante (Cryst/Noct/Ignis/Lux/Terra/Aqua/Primo/Botan/Gild/Ryu/Libero/Flower)
+// condividono il numero base del Pal originale e sono contrassegnate con "B", come in gioco e su paldb.cc.
+// Fonte: PalCalc.Model/db.json (progetto PalCalc, MIT license).
+const PALDEX = {
+  "Aegidron": "184", "Amione": "047", "Anubis": "139", "Arsox": "058", "Astegon": "158", "Azurmane": "161",
+  "Azurobe": "041", "Azurobe Cryst": "041B", "Bakemi": "168", "Bastigor": "191", "Beakon": "096",
+  "Beakon Cryst": "096B", "Beegarde": "067", "Bellanoir": "195", "Bellanoir Libero": "195B", "Blazamut": "137",
+  "Blazamut Ryu": "137B", "Blazehowl": "112", "Blazehowl Noct": "112B", "Braloha": "110", "Bristla": "060",
+  "Broncherry": "108", "Broncherry Aqua": "108B", "Bulldosu": "156", "Bushi": "085", "Bushi Noct": "085B",
+  "Caprity": "034", "Caprity Noct": "034B", "Carnibora": "136", "Cattiva": "002", "Cawgnito": "057",
+  "Celaray": "007", "Celaray Lux": "007B", "Celesdir": "157", "Celesdir Noct": "157B", "Chikipi": "003",
+  "Chillet": "103", "Chillet Ignis": "103B", "Cinnamoth": "061", "Clovee": "014", "Cremis": "008", "Croajiro": "009",
+  "Croajiro Noct": "009B", "Cryolinx": "132", "Cryolinx Terra": "132B", "Daedream": "022", "Dandilord": "194",
+  "Dazemu": "123", "Dazzi": "092", "Dazzi Noct": "092B", "Depresso": "016", "Digtoise": "107", "Dinossom": "084",
+  "Dinossom Lux": "084B", "Direhowl": "033", "Dogen": "155", "Dualith": "138", "Dualith Noct": "138B",
+  "Dumud": "109", "Dumud Gild": "109B", "Dupin": "176", "Dynamoff": "172", "Eidrolon": "171",
+  "Eidrolon Ignis": "171B", "Eikthyrdeer": "032", "Eikthyrdeer Terra": "032B", "Elgrove": "081",
+  "Elgrove Cryst": "081B", "Elizabee": "068", "Elphidran": "063", "Elphidran Aqua": "063B", "Faleris": "188",
+  "Faleris Aqua": "188B", "Felbat": "065", "Fenglope": "083", "Fenglope Lux": "083B", "Finsider": "088",
+  "Finsider Ignis": "088B", "Flambelle": "025", "Flaracle": "174", "Flopie": "077", "Foxcicle": "095",
+  "Foxparks": "029", "Foxparks Cryst": "029B", "Frostallion": "200", "Frostallion Noct": "200B", "Frostplume": "114",
+  "Fuack": "005", "Fuack Ignis": "005B", "Fuddler": "031", "Galeclaw": "049", "Ghangler": "097",
+  "Ghangler Ignis": "097B", "Gildane": "154", "Gildra": "120", "Gloopie": "048", "Gloopie Primo": "048B",
+  "Gobfin": "055", "Gobfin Ignis": "055B", "Gorirat": "074", "Gorirat Terra": "074B", "Grintale": "070",
+  "Grizzbolt": "185", "Gumoss": "012", "Gumoss Flower": "012B", "Hangyu": "038", "Hangyu Cryst": "038B",
+  "Hartalis": "197", "Helzephyr": "080", "Helzephyr Lux": "080B", "Herbil": "010", "Hoocrates": "019",
+  "Hoodle": "166", "Icelyn": "119", "Incineram": "091", "Incineram Noct": "091B", "Jelliette": "045",
+  "Jellroy": "046", "Jetragon": "202", "Jolthog": "015", "Jolthog Cryst": "015B", "Jormuntide": "121",
+  "Jormuntide Ignis": "121B", "Katress": "079", "Katress Ignis": "079B", "Kelpsea": "043", "Kelpsea Ignis": "043B",
+  "Kikit": "126", "Killamari": "030", "Killamari Primo": "030B", "Kingpaca": "021", "Kingpaca Cryst": "021B",
+  "Kitsun": "111", "Kitsun Noct": "111B", "Knocklem": "159", "Knocklem Ignis": "159B", "Lamball": "001",
+  "Lapiron": "165", "Lapure": "170", "Leafan": "090", "Leezpunk": "073", "Leezpunk Ignis": "073B", "Lifmunk": "004",
+  "Loomen": "180", "Loupmoon": "056", "Loupmoon Cryst": "056B", "Lovander": "069", "Lullu": "125", "Lunaris": "082",
+  "Lyleen": "186", "Lyleen Noct": "186B", "Majex": "115", "Mammorest": "087", "Mammorest Cryst": "087B",
+  "Maraith": "117", "Mau": "027", "Mau Cryst": "027B", "Melpaca": "020", "Menasting": "099",
+  "Menasting Terra": "099B", "Mimog": "144", "Moldron": "105", "Moldron Cryst": "105B", "Mossanda": "102",
+  "Mossanda Lux": "102B", "Mozzarina": "040", "Muffly": "059", "Munchill": "086", "Mycora": "179", "Necromus": "199",
+  "Needoll": "100", "Needoll Noct": "100B", "Neptilius": "201", "Nitemary": "148", "Nitemary Botan": "148B",
+  "Nitewing": "051", "Nox": "024", "Nyafia": "143", "Omascul": "150", "Ophydia": "175", "Orserk": "187",
+  "Paladius": "198", "Palumba": "106", "Panthalus": "203", "Pengullet": "017", "Pengullet Lux": "017B",
+  "Penking": "018", "Penking Lux": "018B", "Petallia": "089", "Petallia Ignis": "089B", "Pierdon": "131",
+  "Pierdon Cryst": "131B", "Polapup": "072", "Polapup Terra": "072B", "Prixter": "141", "Prixter Lux": "141B",
+  "Prunelia": "147", "Puffolt": "062", "Pupperai": "013", "Pyrin": "093", "Pyrin Noct": "093B", "Quivern": "124",
+  "Quivern Botan": "124B", "Ragnahawk": "104", "Rayhound": "098", "Rayhound Cryst": "098B", "Reindrix": "101",
+  "Relaxaurus": "094", "Relaxaurus Lux": "094B", "Renjishi": "183", "Reptyro": "129", "Reptyro Cryst": "129B",
+  "Ribbuny": "044", "Ribbuny Botan": "044B", "Robinquill": "076", "Robinquill Terra": "076B", "Rooby": "026",
+  "Roujay": "177", "Rushoar": "028", "Sekhmet": "140", "Selyne": "190", "Shadowbeak": "189", "Shaolong": "192",
+  "Shroomer": "118", "Shroomer Noct": "118B", "Sibelyx": "116", "Sibelyx Primo": "116B", "Silvance": "193",
+  "Silvegis": "160", "Skutlass": "128", "Skutlass Ignis": "128B", "Slowatt": "167", "Smokie": "149",
+  "Smokie Cryst": "149B", "Snock": "163", "Snock Lux": "163B", "Snugloo": "133", "Solenne": "182", "Solmora": "169",
+  "Solmora Lux": "169B", "Sootseer": "135", "Souffline": "164", "Sparkit": "042", "Splatterina": "153",
+  "Starryon": "130", "Starryon Primo": "130B", "Surfent": "075", "Surfent Terra": "075B", "Suzaku": "122",
+  "Suzaku Aqua": "122B", "Swee": "035", "Sweepa": "036", "Tanzee": "023", "Tanzee Ignis": "023B",
+  "Tarantriss": "071", "Teafant": "011", "Tetroise": "142", "Tetroise Primo": "142B", "Tocotoco": "053",
+  "Tombat": "052", "Tropicaw": "173", "Turtacle": "037", "Turtacle Terra": "037B", "Univolt": "054",
+  "Univolt Cryst": "054B", "Vaelet": "066", "Valentail": "162", "Vanwyrm": "064", "Vanwyrm Cryst": "064B",
+  "Venusa": "178", "Verdash": "152", "Vixy": "006", "Warsect": "113", "Warsect Terra": "113B", "Whalaska": "151",
+  "Whalaska Ignis": "151B", "Wispaw": "050", "Wistella": "181", "Wixen": "078", "Wixen Noct": "078B",
+  "Woolipop": "039", "Woolipop Terra": "039B", "Wumpo": "134", "Wumpo Botan": "134B", "Xenogard": "146",
+  "Xenolord": "196", "Xenovader": "145", "Yakumo": "127"
+};
+
 // Abilita' passive dei Pal: coppie [inglese, italiano].
 // Fonte: paldb.cc/en/Passive_Skills e paldb.cc/it/Passive_Skills (le due pagine usano lo stesso ordine).
 // Il nome INGLESE resta la chiave interna con cui vengono salvati i tag, cosi' i dati gia'
@@ -1321,6 +1383,27 @@ function esc(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
+// Numero Paldex formattato (es. "#032B"), o stringa vuota se sconosciuto.
+function dexNo(name) {
+  const d = PALDEX[name];
+  return d ? `#${d}` : "";
+}
+
+// Nodo con il numero Paldex (attenuato) seguito dal nome del Pal, usato nelle liste selezionabili.
+function palNameNode(name) {
+  const frag = document.createDocumentFragment();
+  const d = dexNo(name);
+  if (d) frag.appendChild(el("span", { style: "color:var(--muted-2);font-size:11px;margin-right:6px" }, d));
+  frag.appendChild(document.createTextNode(name));
+  return frag;
+}
+
+// Nome del Pal con il numero Paldex davanti, per i contesti testuali (risultati, template string).
+function palTxt(name) {
+  const d = dexNo(name);
+  return d ? `${d} ${name}` : name;
+}
+
 function el(tag, attrs = {}, children = []) {
   const node = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
@@ -1338,7 +1421,7 @@ function el(tag, attrs = {}, children = []) {
 }
 
 // Combobox con ricerca (equivalente del GenericCombobox React)
-function combobox({ options, value, placeholder, onSelect }) {
+function combobox({ options, value, placeholder, onSelect, renderItem }) {
   const wrap = el("div", { class: "cb" });
   const input = el("input", { class: "pb-input", placeholder: placeholder || "" });
   input.value = value || "";
@@ -1351,7 +1434,7 @@ function combobox({ options, value, placeholder, onSelect }) {
     list.innerHTML = "";
     if (!open || matches.length === 0) { list.style.display = "none"; return; }
     matches.forEach((p) => {
-      const item = el("div", { class: "cb-item" }, p);
+      const item = el("div", { class: "cb-item" }, renderItem ? renderItem(p) : p);
       item.addEventListener("mousedown", () => {
         input.value = p;
         open = false;
@@ -1376,7 +1459,7 @@ function combobox({ options, value, placeholder, onSelect }) {
   return wrap;
 }
 
-const palCombobox = (opts) => combobox({ ...opts, options: ALL_PALS });
+const palCombobox = (opts) => combobox({ ...opts, options: ALL_PALS, renderItem: palNameNode });
 
 // Etichetta della passive nella lingua corrente (la chiave interna resta sempre l'inglese).
 function passiveLabel(key) {
@@ -1448,7 +1531,7 @@ function renderPalbox(view) {
       cb.checked = state.owned.has(p);
       cb.tabIndex = -1;
       chip.appendChild(cb);
-      chip.appendChild(document.createTextNode(p));
+      chip.appendChild(palNameNode(p));
       chip.addEventListener("click", () => {
         state.owned.has(p) ? state.owned.delete(p) : state.owned.add(p);
         saveState();
@@ -1479,7 +1562,7 @@ function renderCalc(view) {
 
     const box = el("div", { class: "result-box" });
     if (res.child) {
-      box.appendChild(el("div", { style: "font-size:20px;font-weight:700" }, `→ ${res.child}`));
+      box.appendChild(el("div", { style: "font-size:20px;font-weight:700" }, `→ ${palTxt(res.child)}`));
       const bg = res.method === "special" ? "var(--ok-bg)" : res.method === "same" ? "var(--neutral-bg)" : "var(--warn-bg)";
       const fg = res.method === "special" ? "var(--ok-text)" : res.method === "same" ? "var(--neutral-text)" : "var(--warn-text)";
       box.appendChild(el("span", { class: "pb-badge", style: `background:${bg};color:${fg}` }, t("method_" + res.method)));
@@ -1584,7 +1667,7 @@ function renderChain(view) {
         wrap.appendChild(el("div", { style: "font-weight:600;font-size:14px;margin-bottom:6px" }, t("knownCombos", target)));
         specials.forEach(([a, b]) => {
           const line = el("div", { style: "font-size:14px;padding:6px 10px;background:var(--surface);border-radius:8px;margin-bottom:4px;border:1px solid var(--border)" });
-          line.appendChild(document.createTextNode(`${a} + ${b} `));
+          line.appendChild(document.createTextNode(`${palTxt(a)} + ${palTxt(b)} `));
           if (state.owned.has(a) && state.owned.has(b)) {
             line.appendChild(el("span", { class: "pb-badge", style: "background:var(--ok-bg);color:var(--ok-text)" }, t("haveBoth")));
           }
@@ -1607,7 +1690,7 @@ function renderChain(view) {
         box.appendChild(el("p", { style: "margin:0" }, t("alreadyOwned", state.target)));
       } else {
         box.appendChild(el("div", { style: "font-weight:700;margin-bottom:6px" }, t("foundIn", r.gen)));
-        box.appendChild(el("div", {}, `${r.via[0]} + ${r.via[1]} → ${state.target}`));
+        box.appendChild(el("div", {}, `${palTxt(r.via[0])} + ${palTxt(r.via[1])} → ${palTxt(state.target)}`));
         const bg = r.method === "special" ? "var(--ok-bg)" : "var(--warn-bg)";
         const fg = r.method === "special" ? "var(--ok-text)" : "var(--warn-text)";
         box.appendChild(el("span", { class: "pb-badge", style: `background:${bg};color:${fg};margin-top:6px` }, t("method_" + r.method)));
@@ -1746,7 +1829,7 @@ function renderPlan(view) {
       const scroll = el("div", { style: "max-height:220px;overflow-y:auto" });
       Array.from(state.owned).forEach((p) => {
         const line = el("div", { style: "display:flex;align-items:center;gap:10px;padding:5px 8px;border-bottom:1px solid var(--border-soft);font-size:13px;flex-wrap:wrap" });
-        line.appendChild(el("div", { style: "width:140px;font-weight:600" }, p));
+        line.appendChild(el("div", { style: "width:140px;font-weight:600" }, palNameNode(p)));
         active.forEach((n) => {
           const lbl = el("label", { style: "display:flex;align-items:center;gap:4px" });
           const cb = el("input", { type: "checkbox" });
