@@ -1146,8 +1146,8 @@ const I18N = {
     resetBtn: "Azzera dati salvati",
     resetConfirm: "Cancellare Palbox, tag e passive salvati nel browser?",
 
-    searchPal: "Cerca un Pal...",
-    searchPlaceholder: "Scrivi per cercare...",
+    searchPal: "Cerca per nome o numero Paldex...",
+    searchPlaceholder: "Nome o numero Paldex...",
 
     parentA: "Genitore A",
     parentB: "Genitore B",
@@ -1241,8 +1241,8 @@ const I18N = {
     resetBtn: "Clear saved data",
     resetConfirm: "Clear the Palbox, tags and passives saved in your browser?",
 
-    searchPal: "Search a Pal...",
-    searchPlaceholder: "Type to search...",
+    searchPal: "Search by name or Paldex number...",
+    searchPlaceholder: "Name or Paldex number...",
 
     parentA: "Parent A",
     parentB: "Parent B",
@@ -1404,6 +1404,19 @@ function palTxt(name) {
   return d ? `${d} ${name}` : name;
 }
 
+// Vero se la query corrisponde al nome del Pal oppure al suo numero Paldex (es. "29", "029", "#29", "29b").
+function palMatches(name, q) {
+  if (!q) return true;
+  if (name.toLowerCase().includes(q)) return true;
+  const dex = PALDEX[name];
+  if (!dex) return false;
+  const qq = q.replace(/^#/, "");
+  if (!qq) return false;
+  const full = dex.toLowerCase();
+  const short = String(parseInt(dex, 10)) + dex.slice(3).toLowerCase();
+  return full.includes(qq) || short.includes(qq);
+}
+
 function el(tag, attrs = {}, children = []) {
   const node = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
@@ -1421,16 +1434,17 @@ function el(tag, attrs = {}, children = []) {
 }
 
 // Combobox con ricerca (equivalente del GenericCombobox React)
-function combobox({ options, value, placeholder, onSelect, renderItem }) {
+function combobox({ options, value, placeholder, onSelect, renderItem, matchFn }) {
   const wrap = el("div", { class: "cb" });
   const input = el("input", { class: "pb-input", placeholder: placeholder || "" });
   input.value = value || "";
   const list = el("div", { class: "cb-list", style: "display:none" });
   let open = false;
+  const matchOption = matchFn || ((p, q) => p.toLowerCase().includes(q));
 
   function renderList() {
     const q = input.value.trim().toLowerCase();
-    const matches = (q ? options.filter((p) => p.toLowerCase().includes(q)) : options).slice(0, 15);
+    const matches = (q ? options.filter((p) => matchOption(p, q)) : options).slice(0, 15);
     list.innerHTML = "";
     if (!open || matches.length === 0) { list.style.display = "none"; return; }
     matches.forEach((p) => {
@@ -1459,7 +1473,7 @@ function combobox({ options, value, placeholder, onSelect, renderItem }) {
   return wrap;
 }
 
-const palCombobox = (opts) => combobox({ ...opts, options: ALL_PALS, renderItem: palNameNode });
+const palCombobox = (opts) => combobox({ ...opts, options: ALL_PALS, renderItem: palNameNode, matchFn: palMatches });
 
 // Etichetta della passive nella lingua corrente (la chiave interna resta sempre l'inglese).
 function passiveLabel(key) {
@@ -1523,9 +1537,9 @@ function renderPalbox(view) {
   const grid = el("div", { class: "pb-pal-grid" });
 
   function updateGrid() {
-    const q = state.search.toLowerCase();
+    const q = state.search.trim().toLowerCase();
     grid.innerHTML = "";
-    ALL_PALS.filter((p) => p.toLowerCase().includes(q)).forEach((p) => {
+    ALL_PALS.filter((p) => palMatches(p, q)).forEach((p) => {
       const chip = el("div", { class: "pb-pal-chip" + (state.owned.has(p) ? " selected" : "") });
       const cb = el("input", { type: "checkbox" });
       cb.checked = state.owned.has(p);
